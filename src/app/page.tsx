@@ -1,19 +1,25 @@
-import AuthForm from "./auth-form"
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
+import AuthForm from "./login-form"
 
-export default function Home() {
+const Main = "div"
+
+export default async function Home() {
+  const supabase = createServerComponentClient({ cookies })
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
   return (
-    <div className="row">
-      <div className="col-6">
-        <h1 className="header">Supabase Auth + Storage</h1>
-        <p className="">
-          Experience our Auth and Storage through a simple profile management
-          example. Create a user profile and upload an avatar image. Fast,
-          simple, secure.
-        </p>
+    <Main>
+      <div>
+        <h1>Welcome back!</h1>
+        <p>Start messaging</p>
       </div>
-      <div className="col-6 auth-widget">
-        <AuthForm />
+      <div>
+        <AuthForm session={session} />
       </div>
-    </div>
+    </Main>
   )
 }

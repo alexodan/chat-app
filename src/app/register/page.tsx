@@ -1,19 +1,19 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
-import { Database } from "../../types/supabase"
-import AccountForm from "./account-form"
 import { redirect } from "next/navigation"
+import RegisterForm from "./register-form"
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
+import { Database } from "@/types/supabase"
+import { cookies } from "next/headers"
 
-export default async function Account() {
+export default async function Register() {
   const supabase = createServerComponentClient<Database>({ cookies })
 
   const {
     data: { session },
   } = await supabase.auth.getSession()
 
-  if (!session) {
+  if (session) {
     return redirect("/")
   }
 
-  return <AccountForm session={session} />
+  return <RegisterForm session={session} />
 }

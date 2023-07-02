@@ -10,10 +10,10 @@ import {
 export default function AccountForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
   const [loading, setLoading] = useState(true)
-  const [fullname, setFullname] = useState<string | null>(null)
+  const [fullName, setFullName] = useState<string | null>(null)
   const [username, setUsername] = useState<string | null>(null)
   const [website, setWebsite] = useState<string | null>(null)
-  const [avatar_url, setAvatarUrl] = useState<string | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const user = session?.user
 
   const getProfile = useCallback(async () => {
@@ -31,7 +31,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
       }
 
       if (data) {
-        setFullname(data.full_name)
+        setFullName(data.full_name)
         setUsername(data.username)
         setWebsite(data.website)
         setAvatarUrl(data.avatar_url)
@@ -50,22 +50,22 @@ export default function AccountForm({ session }: { session: Session | null }) {
   async function updateProfile({
     username,
     website,
-    avatar_url,
+    avatarUrl,
   }: {
     username: string | null
-    fullname: string | null
+    fullName: string | null
     website: string | null
-    avatar_url: string | null
+    avatarUrl: string | null
   }) {
     try {
       setLoading(true)
 
       let { error } = await supabase.from("profiles").upsert({
         id: user?.id as string,
-        full_name: fullname,
+        fullName,
         username,
         website,
-        avatar_url,
+        avatarUrl,
         updated_at: new Date().toISOString(),
       })
       if (error) throw error
@@ -88,8 +88,8 @@ export default function AccountForm({ session }: { session: Session | null }) {
         <input
           id="fullName"
           type="text"
-          value={fullname || ""}
-          onChange={e => setFullname(e.target.value)}
+          value={fullName || ""}
+          onChange={e => setFullName(e.target.value)}
         />
       </div>
       <div>
@@ -115,7 +115,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
         <button
           className="button primary block"
           onClick={() =>
-            updateProfile({ fullname, username, website, avatar_url })
+            updateProfile({ fullName, username, website, avatarUrl })
           }
           disabled={loading}
         >
