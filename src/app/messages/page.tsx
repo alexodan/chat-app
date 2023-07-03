@@ -1,5 +1,6 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
 
 export default async function Messages() {
   const supabase = createServerComponentClient({ cookies })
@@ -8,7 +9,9 @@ export default async function Messages() {
     data: { session },
   } = await supabase.auth.getSession()
 
-  console.log("session:", session)
+  if (!session) {
+    return redirect("/")
+  }
 
   return <h1>Messages</h1>
 }
