@@ -9,8 +9,8 @@ export const button = cva({
   },
   variants: {
     visual: {
-      solid: { bg: "teal.200", color: "white" },
-      outline: { borderWidth: "1px", borderColor: "teal.200" },
+      solid: { bg: "teal.400", color: "white" },
+      outline: { borderWidth: "1px", borderColor: "teal.400" },
     },
     size: {
       sm: { padding: "2", fontSize: "12px" },
