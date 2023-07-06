@@ -8,6 +8,9 @@ import {
 } from "@supabase/auth-helpers-nextjs"
 import { Database } from "@/types/supabase"
 import { redirect } from "next/navigation"
+import Button from "@/components/common/Button"
+import { css } from "../../../styled-system/css"
+import Input from "@/components/common/Input"
 
 export default function AccountForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
@@ -48,52 +51,69 @@ export default function AccountForm({ session }: { session: Session | null }) {
   }
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+    <div
+      className={css({
+        h: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDir: "column",
+        minW: "320px",
+        w: "50%",
+        m: "0 auto",
+      })}
+    >
+      <h2 className={css({ fontSize: "2xl", mb: 2 })}>Register</h2>
+      <form onSubmit={handleSubmit} className={css({ width: "100%" })}>
         <label>
-          Username:
-          <input
+          Username
+          <Input
+            fullWidth
+            userCss={css({ mb: 2 })}
             type="text"
             name="username"
             value={username}
             onChange={handleChange}
           />
         </label>
-        <br />
         <label>
-          Email:
-          <input
+          Email
+          <Input
+            fullWidth
+            userCss={css({ mb: 2 })}
             type="email"
             name="email"
             value={email}
             onChange={handleChange}
           />
         </label>
-        <br />
         <label>
-          Password:
-          <input
+          Password
+          <Input
+            fullWidth
+            userCss={css({ mb: 2 })}
             type="password"
             name="password"
             value={password}
             onChange={handleChange}
           />
         </label>
-        <br />
         <label>
-          Confirm Password:
-          <input
+          Confirm Password
+          <Input
+            fullWidth
+            userCss={css({ mb: 2 })}
             type="password"
             name="confirmPassword"
             value={confirmPassword}
             onChange={handleChange}
           />
         </label>
-        <br />
-        <button type="submit">Register</button>
+        <Button userCss={css({ width: "100%", my: 4 })} size="md" type="submit">
+          Register
+        </Button>
       </form>
-      <p>
+      <p className={css({ fontSize: "sm" })}>
         Already have an account? <Link href="/">Sign in</Link>
       </p>
     </div>

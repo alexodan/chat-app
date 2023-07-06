@@ -1,38 +1,39 @@
 import { css, cva, cx } from "../../../styled-system/css"
 
-export const button = cva({
+export const input = cva({
   base: {
-    borderRadius: "md",
     display: "flex",
-    cursor: "pointer",
-    justifyContent: "center",
+    borderWidth: "1px",
+    borderColor: "gray.200",
+    borderRadius: "md",
+    padding: "2",
+    fontSize: "16px",
+    color: "black",
   },
   variants: {
     visual: {
-      solid: { bg: "teal.200", color: "white" },
-      outline: { borderWidth: "1px", borderColor: "teal.200" },
+      solid: { bg: "gray.100" },
+      outline: { bg: "white" },
     },
     size: {
       sm: { padding: "2", fontSize: "12px" },
-      md: { py: "1", px: "2", fontSize: "16px" },
       lg: { padding: "4", fontSize: "24px" },
     },
   },
   defaultVariants: {
-    visual: "solid",
+    visual: "outline",
     size: "sm",
   },
 })
 
 type Props = {
-  size?: "sm" | "md" | "lg"
-  visual?: "solid" | "outline"
+  size?: "sm" | "lg"
+  visual?: "outline" | "solid"
   fullWidth?: boolean
   userCss?: string
-} & React.ButtonHTMLAttributes<HTMLButtonElement>
+} & React.InputHTMLAttributes<HTMLInputElement>
 
-export default function Button({
-  children,
+export default function Input({
   size,
   visual,
   fullWidth,
@@ -40,15 +41,13 @@ export default function Button({
   ...rest
 }: Props) {
   return (
-    <button
+    <input
       className={cx(
-        button({ visual, size }),
+        input({ size, visual }),
         fullWidth ? css({ width: "100%" }) : "",
         userCss ?? ""
       )}
       {...rest}
-    >
-      {children}
-    </button>
+    />
   )
 }
