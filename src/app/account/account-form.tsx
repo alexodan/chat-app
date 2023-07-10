@@ -6,6 +6,9 @@ import {
   Session,
   createClientComponentClient,
 } from "@supabase/auth-helpers-nextjs"
+import Input from "@/components/common/Input"
+import Button from "@/components/common/Button"
+import { css } from "../../../styled-system/css"
 
 export default function AccountForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
@@ -78,32 +81,33 @@ export default function AccountForm({ session }: { session: Session | null }) {
   }
 
   return (
-    <div className="form-widget">
-      <div>
+    <div className={css({ px: 4, py: 2 })}>
+      <h2 className={css({ fontSize: '2xl' })}>Account details</h2>
+      <div className={css({ mt: 2 })}>
         <label htmlFor="email">Email</label>
-        <input id="email" type="text" value={session?.user.email} disabled />
+        <Input id="email" type="text" value={session?.user.email} disabled />
       </div>
-      <div>
+      <div className={css({ mt: 2 })}>
         <label htmlFor="fullName">Full Name</label>
-        <input
+        <Input
           id="fullName"
           type="text"
           value={fullName || ""}
           onChange={e => setFullName(e.target.value)}
         />
       </div>
-      <div>
+      <div className={css({ mt: 2 })}>
         <label htmlFor="username">Username</label>
-        <input
+        <Input
           id="username"
           type="text"
           value={username || ""}
           onChange={e => setUsername(e.target.value)}
         />
       </div>
-      <div>
+      <div className={css({ mt: 2 })}>
         <label htmlFor="website">Website</label>
-        <input
+        <Input
           id="website"
           type="url"
           value={website || ""}
@@ -111,24 +115,15 @@ export default function AccountForm({ session }: { session: Session | null }) {
         />
       </div>
 
-      <div>
-        <button
-          className="button primary block"
+      <div className={css({ mt: 2 })}>
+        <Button
           onClick={() =>
             updateProfile({ fullName, username, website, avatarUrl })
           }
           disabled={loading}
         >
           {loading ? "Loading ..." : "Update"}
-        </button>
-      </div>
-
-      <div>
-        <form action="/auth/signout" method="post">
-          <button className="button block" type="submit">
-            Sign out
-          </button>
-        </form>
+        </Button>
       </div>
     </div>
   )
