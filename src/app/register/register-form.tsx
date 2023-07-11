@@ -1,25 +1,28 @@
-"use client"
+'use client'
 
-import React, { useState } from "react"
-import Link from "next/link"
+import React, { useState } from 'react'
+import Link from 'next/link'
 import {
   Session,
   createClientComponentClient,
-} from "@supabase/auth-helpers-nextjs"
-import { Database } from "@/types/supabase"
-import { redirect } from "next/navigation"
-import Button from "@/components/common/Button"
-import { css } from "../../../styled-system/css"
-import Input from "@/components/common/Input"
+} from '@supabase/auth-helpers-nextjs'
+import { Database } from '@/types/supabase'
+import { redirect } from 'next/navigation'
+import Button from '@/components/common/Button'
+import { css } from '../../../styled-system/css'
+import Input from '@/components/common/Input'
+import useToast from '@/hooks/useToast'
 
 export default function AccountForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
   })
+  const { toastMessage, toggleToast } = useToast()
+
   const { email, username, password, confirmPassword } = formData
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,30 +44,30 @@ export default function AccountForm({ session }: { session: Session | null }) {
         },
       })
       if (error) {
-        console.error("Error ocurred: ", error)
+        toggleToast(error.message)
       }
     }
   }
 
   if (session) {
-    return redirect("/messages")
+    return redirect('/messages')
   }
 
   return (
     <div
       className={css({
-        h: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDir: "column",
-        minW: "320px",
-        w: "50%",
-        m: "0 auto",
+        h: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDir: 'column',
+        minW: '320px',
+        w: '50%',
+        m: '0 auto',
       })}
     >
-      <h2 className={css({ fontSize: "2xl", mb: 2 })}>Register</h2>
-      <form onSubmit={handleSubmit} className={css({ width: "100%" })}>
+      <h2 className={css({ fontSize: '2xl', mb: 2 })}>Register</h2>
+      <form onSubmit={handleSubmit} className={css({ width: '100%' })}>
         <label>
           Username
           <Input
@@ -109,11 +112,11 @@ export default function AccountForm({ session }: { session: Session | null }) {
             onChange={handleChange}
           />
         </label>
-        <Button userCss={css({ width: "100%", my: 4 })} size="md" type="submit">
+        <Button userCss={css({ width: '100%', my: 4 })} size="md" type="submit">
           Register
         </Button>
       </form>
-      <p className={css({ fontSize: "sm" })}>
+      <p className={css({ fontSize: 'sm' })}>
         Already have an account? <Link href="/">Sign in</Link>
       </p>
     </div>

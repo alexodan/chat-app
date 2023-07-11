@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { useCallback, useEffect, useState } from "react"
-import { Database } from "../../types/supabase"
+import { useCallback, useEffect, useState } from 'react'
+import { Database } from '@/types/supabase'
 import {
   Session,
   createClientComponentClient,
@@ -24,9 +24,9 @@ export default function AccountForm({ session }: { session: Session | null }) {
       setLoading(true)
 
       let { data, error, status } = await supabase
-        .from("profiles")
+        .from('profiles')
         .select(`full_name, username, website, avatar_url`)
-        .eq("id", user?.id)
+        .eq('id', user?.id)
         .single()
 
       if (error && status !== 406) {
@@ -40,7 +40,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
         setAvatarUrl(data.avatar_url)
       }
     } catch (error) {
-      alert("Error loading user data!")
+      alert('Error loading user data!')
     } finally {
       setLoading(false)
     }
@@ -63,7 +63,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
     try {
       setLoading(true)
 
-      let { error } = await supabase.from("profiles").upsert({
+      let { error } = await supabase.from('profiles').upsert({
         id: user?.id as string,
         fullName,
         username,
@@ -72,9 +72,9 @@ export default function AccountForm({ session }: { session: Session | null }) {
         updated_at: new Date().toISOString(),
       })
       if (error) throw error
-      alert("Profile updated!")
+      alert('Profile updated!')
     } catch (error) {
-      alert("Error updating the data!")
+      alert('Error updating the data!')
     } finally {
       setLoading(false)
     }
@@ -92,7 +92,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
         <Input
           id="fullName"
           type="text"
-          value={fullName || ""}
+          value={fullName || ''}
           onChange={e => setFullName(e.target.value)}
         />
       </div>
@@ -101,7 +101,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
         <Input
           id="username"
           type="text"
-          value={username || ""}
+          value={username || ''}
           onChange={e => setUsername(e.target.value)}
         />
       </div>
@@ -110,7 +110,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
         <Input
           id="website"
           type="url"
-          value={website || ""}
+          value={website || ''}
           onChange={e => setWebsite(e.target.value)}
         />
       </div>

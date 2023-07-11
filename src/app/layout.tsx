@@ -3,11 +3,11 @@ import { Inter } from "next/font/google"
 import Sidebar from "@/components/Sidebar"
 import { css } from "../../styled-system/css"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: "Chat App",
-  description: "",
+  title: 'Chat App',
+  description: '',
 }
 
 export default function RootLayout({
