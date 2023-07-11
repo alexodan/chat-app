@@ -1,9 +1,9 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
-import LoginForm from "./login-form"
-import { css } from "../../styled-system/css"
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { css } from '../../styled-system/css'
+import Link from 'next/link'
 
-export default async function Home() {
+export default async function LandingPage() {
   const supabase = createServerComponentClient({ cookies })
 
   const {
@@ -13,28 +13,11 @@ export default async function Home() {
   return (
     <div
       className={css({
-        h: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minW: "320px",
+        h: '100vh',
       })}
     >
-      <div
-        className={css({
-          display: "flex",
-          flexDir: "column",
-          textAlign: "center",
-        })}
-      >
-        <div>
-          <h1 className={css({ fontSize: "3xl" })}>Welcome back!</h1>
-          <p className={css({ fontSize: "sm", mb: 2 })}>Start messaging</p>
-        </div>
-        <div>
-          <LoginForm session={session} />
-        </div>
-      </div>
+      <h1>Landing</h1>
+      <Link href="/login">Login</Link>
     </div>
   )
 }
