@@ -6,14 +6,16 @@ import {
   Session,
   createClientComponentClient,
 } from '@supabase/auth-helpers-nextjs'
+import Input from '@/components/common/Input'
+import Button from '@/components/common/Button'
+import { css } from '../../../styled-system/css'
 
 export default function AccountForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
   const [loading, setLoading] = useState(true)
   const [fullName, setFullName] = useState<string | null>(null)
   const [username, setUsername] = useState<string | null>(null)
-  const [website, setWebsite] = useState<string | null>(null)
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [profilePicture, setProfilePicture] = useState<File | null>(null)
   const user = session?.user
 
   const getProfile = useCallback(async () => {
@@ -22,7 +24,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
 
       let { data, error, status } = await supabase
         .from('profiles')
-        .select(`full_name, username, website, avatar_url`)
+        .select(`full_name, username`)
         .eq('id', user?.id)
         .single()
 
@@ -33,8 +35,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
       if (data) {
         setFullName(data.full_name)
         setUsername(data.username)
-        setWebsite(data.website)
-        setAvatarUrl(data.avatar_url)
+        // setProfilePicture
       }
     } catch (error) {
       alert('Error loading user data!')
@@ -48,26 +49,28 @@ export default function AccountForm({ session }: { session: Session | null }) {
   }, [user, getProfile])
 
   async function updateProfile({
+    fullName,
     username,
-    website,
-    avatarUrl,
+    profilePicture,
   }: {
     username: string | null
     fullName: string | null
-    website: string | null
-    avatarUrl: string | null
+    profilePicture: File | null
   }) {
     try {
       setLoading(true)
 
       let { error } = await supabase.from('profiles').upsert({
         id: user?.id as string,
-        fullName,
+        full_name: fullName,
         username,
-        website,
-        avatarUrl,
         updated_at: new Date().toISOString(),
       })
+      if (profilePicture) {
+        await supabase.storage
+          .from('avatars')
+          .upload(`${user?.id}}`, profilePicture)
+      }
       if (error) throw error
       alert('Profile updated!')
     } catch (error) {
@@ -101,26 +104,25 @@ export default function AccountForm({ session }: { session: Session | null }) {
           onChange={e => setUsername(e.target.value)}
         />
       </div>
-      <div>
-        <label htmlFor="website">Website</label>
-        <input
-          id="website"
-          type="url"
-          value={website || ''}
-          onChange={e => setWebsite(e.target.value)}
+      <div className={css({ mt: 2 })}>
+        <label htmlFor="avatar">Profile picture</label>
+        <Input
+          id="avatar"
+          type="file"
+          onChange={e => {
+            console.log(e.target.files)
+            setProfilePicture(e.target.files?.[0] || null)
+          }}
         />
       </div>
 
-      <div>
-        <button
-          className="button primary block"
-          onClick={() =>
-            updateProfile({ fullName, username, website, avatarUrl })
-          }
+      <div className={css({ mt: 2 })}>
+        <Button
+          onClick={() => updateProfile({ fullName, username, profilePicture })}
           disabled={loading}
         >
           {loading ? 'Loading ...' : 'Update'}
-        </button>
+        </Button>
       </div>
 
       <div>

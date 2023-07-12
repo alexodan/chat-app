@@ -13,8 +13,8 @@ import Button, { button } from '@/components/common/Button'
 import Input, { input } from '@/components/common/Input'
 import { css, cx } from '../../../styled-system/css'
 import Separator from '@/components/common/Separator'
-import Toast from '@/components/common/Toast'
-import useToast from '@/hooks/useToast'
+import ErrorMessage from '@/components/common/ErrorMessage'
+import { SignInData } from '@/app/auth/signin/route'
 
 export default function LoginForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
@@ -24,28 +24,33 @@ export default function LoginForm({ session }: { session: Session | null }) {
   const [password, setPassword] = useState('')
   const [isMagicLinkLogin, setIsMagicLinkLogin] = useState(false)
 
-  const { toastMessage, toggleToast } = useToast()
+  const [errorMessage, setErrorMessage] = useState<string>()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    setErrorMessage('')
+    const result = (await fetch('/auth/signin', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
     })
-    if (error) {
-      toggleToast(error.message)
+      .then(res => res.json())
+      .catch(err => {
+        console.error(err)
+        setErrorMessage('Something went wrong. Try again later.')
+      })) as SignInData & { error: string } // TODO: i'm sure there is a better way
+    if (result.error) {
+      setErrorMessage(result.error)
     } else {
       router.push('/messages')
     }
   }
 
-  // TODO: should this be done here or in page?
   useEffect(() => {
     if (window.location.hash.includes('error')) {
       const error = new URLSearchParams(window.location.hash)
-      toggleToast(error.get('error_description') || 'Something went wrong')
+      setErrorMessage(error.get('error_description') || 'Something went wrong')
     }
-  }, [toggleToast])
+  }, [])
 
   if (session) {
     return redirect('/messages')
@@ -53,14 +58,15 @@ export default function LoginForm({ session }: { session: Session | null }) {
 
   return (
     <>
-      {toastMessage && <Toast message={toastMessage} />}
       {!isMagicLinkLogin && (
         <>
           <form onSubmit={handleSubmit}>
             <div>
+              {/* Could be a TextField comp, given is little used I'll skip it for now */}
               <label htmlFor="email-login">Email</label>
               <Input
                 fullWidth
+                type="email"
                 id="email-login"
                 userCss={css({ mb: 2, mt: 2 })}
                 placeholder="you@example.com"
@@ -85,6 +91,7 @@ export default function LoginForm({ session }: { session: Session | null }) {
                 }}
               />
             </div>
+            <ErrorMessage>{errorMessage}</ErrorMessage>
             <div>
               <Button fullWidth type="submit">
                 Login
