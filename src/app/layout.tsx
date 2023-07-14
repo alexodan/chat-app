@@ -1,7 +1,5 @@
-import "./global.css"
-import { Inter } from "next/font/google"
-import Sidebar from "@/components/Sidebar"
-import { css } from "../../styled-system/css"
+import './global.css'
+import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,10 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Sidebar />
-        <div className={css({ ml: 12 })}>{children}</div>
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }

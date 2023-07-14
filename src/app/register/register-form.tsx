@@ -11,7 +11,7 @@ import { redirect } from 'next/navigation'
 import Button from '@/components/common/Button'
 import { css } from '../../../styled-system/css'
 import Input from '@/components/common/Input'
-import useToast from '@/hooks/useToast'
+import ErrorMessage from '@/components/common/ErrorMessage'
 
 export default function AccountForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
@@ -21,8 +21,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
     password: '',
     confirmPassword: '',
   })
-  const { toastMessage, toggleToast } = useToast()
-
+  const [errorMessage, setErrorMessage] = useState<string>()
   const { email, username, password, confirmPassword } = formData
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,6 +30,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMessage('')
     if (password !== confirmPassword) {
       alert("Passwords don't match")
     } else {
@@ -44,7 +44,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
         },
       })
       if (error) {
-        toggleToast(error.message)
+        setErrorMessage(error.message)
       }
     }
   }
@@ -112,6 +112,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
             onChange={handleChange}
           />
         </label>
+        <ErrorMessage>{errorMessage}</ErrorMessage>
         <Button userCss={css({ width: '100%', my: 4 })} size="md" type="submit">
           Register
         </Button>
