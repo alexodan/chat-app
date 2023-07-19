@@ -2,19 +2,15 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import {
-  Session,
-  createClientComponentClient,
-} from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/supabase'
 import { redirect } from 'next/navigation'
 import Button from '@/components/common/Button'
 import { css } from '../../../styled-system/css'
 import Input from '@/components/common/Input'
 import ErrorMessage from '@/components/common/ErrorMessage'
+import { useSupabase } from '@/components/SupabaseProvider'
 
-export default function AccountForm({ session }: { session: Session | null }) {
-  const supabase = createClientComponentClient<Database>()
+export default function AccountForm() {
+  const { supabase, session } = useSupabase()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -48,6 +44,8 @@ export default function AccountForm({ session }: { session: Session | null }) {
       }
     }
   }
+
+  console.log('register form...', session)
 
   if (session) {
     return redirect('/messages')

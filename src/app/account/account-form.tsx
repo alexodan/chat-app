@@ -11,9 +11,10 @@ import Button from '@/components/common/Button'
 import { css } from '../../../styled-system/css'
 import Avatar from '@/components/Avatar'
 import compressImage from '@/lib/compressImage'
+import { useSupabase } from '@/components/SupabaseProvider'
 
-export default function AccountForm({ session }: { session: Session | null }) {
-  const supabase = createClientComponentClient<Database>()
+export default function AccountForm() {
+  const { session, supabase } = useSupabase()
   const [loading, setLoading] = useState(true)
   const [fullName, setFullName] = useState<string | null>(null)
   const [username, setUsername] = useState<string | null>(null)
@@ -30,6 +31,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
         .select(`full_name, username, avatar_url`)
         .eq('id', user?.id)
         .single()
+      console.log('data:', data, user)
 
       if (error && status !== 406) {
         throw error
@@ -42,6 +44,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
       }
     } catch (error) {
       alert('Error loading user data!')
+      console.error(error)
     } finally {
       setLoading(false)
     }
@@ -147,6 +150,14 @@ export default function AccountForm({ session }: { session: Session | null }) {
         >
           {loading ? 'Loading ...' : 'Update'}
         </Button>
+      </div>
+
+      <div>
+        <form action="/auth/signout" method="get">
+          <button className="button block" type="submit">
+            Sign out
+          </button>
+        </form>
       </div>
     </div>
   )

@@ -1,13 +1,8 @@
 'use client'
 
 import { Auth } from '@supabase/auth-ui-react'
-import {
-  Session,
-  createClientComponentClient,
-} from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/supabase'
 import { FormEvent, useEffect, useState } from 'react'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Button, { button } from '@/components/common/Button'
 import Input, { input } from '@/components/common/Input'
@@ -15,9 +10,10 @@ import { css, cx } from '../../../styled-system/css'
 import Separator from '@/components/common/Separator'
 import ErrorMessage from '@/components/common/ErrorMessage'
 import { SignInData } from '@/app/auth/signin/route'
+import { useSupabase } from '@/components/SupabaseProvider'
 
-export default function LoginForm({ session }: { session: Session | null }) {
-  const supabase = createClientComponentClient<Database>()
+export default function LoginForm() {
+  const { supabase } = useSupabase()
   const router = useRouter()
 
   const [email, setEmail] = useState('')
@@ -25,6 +21,8 @@ export default function LoginForm({ session }: { session: Session | null }) {
   const [isMagicLinkLogin, setIsMagicLinkLogin] = useState(false)
 
   const [errorMessage, setErrorMessage] = useState<string>()
+
+  console.log('Login form')
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -41,6 +39,7 @@ export default function LoginForm({ session }: { session: Session | null }) {
     if (result.error) {
       setErrorMessage(result.error)
     } else {
+      console.log('redirecting to messages')
       router.push('/messages')
     }
   }
@@ -51,10 +50,6 @@ export default function LoginForm({ session }: { session: Session | null }) {
       setErrorMessage(error.get('error_description') || 'Something went wrong')
     }
   }, [])
-
-  if (session) {
-    return redirect('/messages')
-  }
 
   return (
     <>

@@ -11,9 +11,10 @@ export default async function Register() {
     data: { session },
   } = await supabase.auth.getSession()
 
+  console.log('session?:', session)
   if (session) {
     return redirect('/')
   }
 
-  return <RegisterForm session={session} />
+  return <RegisterForm />
 }
