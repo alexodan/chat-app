@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { Database } from '@/types/supabase'
 import {
   Session,
@@ -9,12 +9,15 @@ import {
 import Input from '@/components/common/Input'
 import Button from '@/components/common/Button'
 import { css } from '../../../styled-system/css'
+import Avatar from '@/components/Avatar'
+import compressImage from '@/lib/compressImage'
 
 export default function AccountForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
   const [loading, setLoading] = useState(true)
   const [fullName, setFullName] = useState<string | null>(null)
   const [username, setUsername] = useState<string | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [profilePicture, setProfilePicture] = useState<File | null>(null)
   const user = session?.user
 
@@ -24,7 +27,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
 
       let { data, error, status } = await supabase
         .from('profiles')
-        .select(`full_name, username`)
+        .select(`full_name, username, avatar_url`)
         .eq('id', user?.id)
         .single()
 
@@ -35,7 +38,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
       if (data) {
         setFullName(data.full_name)
         setUsername(data.username)
-        // setProfilePicture
+        setAvatarUrl(data.avatar_url)
       }
     } catch (error) {
       alert('Error loading user data!')
@@ -44,11 +47,27 @@ export default function AccountForm({ session }: { session: Session | null }) {
     }
   }, [user, supabase])
 
-  useEffect(() => {
-    getProfile()
-  }, [user, getProfile])
+  const handleAvatarUpdate = async (e: ChangeEvent<HTMLInputElement>) => {
+    setLoading(true)
+    const image = e.target.files?.[0]
+    if (!image) {
+      setLoading(false)
+      return
+    }
+    try {
+      const compressedImage = await compressImage(image)
+      const file = new File([compressedImage], 'avatar.jpeg', {
+        type: 'image/jpeg',
+      })
+      setProfilePicture(file)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  async function updateProfile({
+  const updateProfile = async ({
     fullName,
     username,
     profilePicture,
@@ -56,22 +75,28 @@ export default function AccountForm({ session }: { session: Session | null }) {
     username: string | null
     fullName: string | null
     profilePicture: File | null
-  }) {
+  }) => {
     try {
+      let avatarUrl = null
       setLoading(true)
+
+      // TODO: I don't like having this here in the component
+      if (profilePicture) {
+        const { data } = await supabase.storage
+          .from('avatars')
+          .update(`${user?.id}/avatar.jpeg`, profilePicture)
+        avatarUrl = data?.path
+      }
 
       let { error } = await supabase.from('profiles').upsert({
         id: user?.id as string,
         full_name: fullName,
         username,
+        avatar_url: avatarUrl,
         updated_at: new Date().toISOString(),
       })
-      if (profilePicture) {
-        await supabase.storage
-          .from('avatars')
-          .upload(`${user?.id}}`, profilePicture)
-      }
       if (error) throw error
+      await getProfile()
       alert('Profile updated!')
     } catch (error) {
       alert('Error updating the data!')
@@ -80,24 +105,29 @@ export default function AccountForm({ session }: { session: Session | null }) {
     }
   }
 
+  useEffect(() => {
+    getProfile()
+  }, [user, getProfile])
+
   return (
-    <div className="form-widget">
-      <div>
+    <div className={css({ px: 4, py: 2 })}>
+      <h2 className={css({ fontSize: '2xl' })}>Account details</h2>
+      <div className={css({ mt: 2 })}>
         <label htmlFor="email">Email</label>
-        <input id="email" type="text" value={session?.user.email} disabled />
+        <Input id="email" type="text" value={session?.user.email} disabled />
       </div>
-      <div>
+      <div className={css({ mt: 2 })}>
         <label htmlFor="fullName">Full Name</label>
-        <input
+        <Input
           id="fullName"
           type="text"
           value={fullName || ''}
           onChange={e => setFullName(e.target.value)}
         />
       </div>
-      <div>
+      <div className={css({ mt: 2 })}>
         <label htmlFor="username">Username</label>
-        <input
+        <Input
           id="username"
           type="text"
           value={username || ''}
@@ -106,14 +136,8 @@ export default function AccountForm({ session }: { session: Session | null }) {
       </div>
       <div className={css({ mt: 2 })}>
         <label htmlFor="avatar">Profile picture</label>
-        <Input
-          id="avatar"
-          type="file"
-          onChange={e => {
-            console.log(e.target.files)
-            setProfilePicture(e.target.files?.[0] || null)
-          }}
-        />
+        <Avatar url={avatarUrl} size={248} />
+        <Input id="avatar" type="file" onChange={handleAvatarUpdate} />
       </div>
 
       <div className={css({ mt: 2 })}>
@@ -123,14 +147,6 @@ export default function AccountForm({ session }: { session: Session | null }) {
         >
           {loading ? 'Loading ...' : 'Update'}
         </Button>
-      </div>
-
-      <div>
-        <form action="/auth/signout" method="post">
-          <button className="button block" type="submit">
-            Sign out
-          </button>
-        </form>
       </div>
     </div>
   )
