@@ -22,8 +22,6 @@ export default function LoginForm() {
 
   const [errorMessage, setErrorMessage] = useState<string>()
 
-  console.log('Login form')
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setErrorMessage('')
@@ -39,7 +37,6 @@ export default function LoginForm() {
     if (result.error) {
       setErrorMessage(result.error)
     } else {
-      console.log('redirecting to messages')
       router.push('/messages')
     }
   }

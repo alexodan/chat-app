@@ -5,9 +5,7 @@ export default async function compressImage(file: Blob): Promise<Blob> {
     throw new Error('File ' + file.name + ' is not an image.')
   }
 
-  const blobURL = window.URL.createObjectURL(file)
-  const img = new Image()
-  img.src = blobURL
+  const img = await createImageBitmap(file)
 
   const canvas = document.createElement('canvas')
   canvas.width = 248
@@ -18,20 +16,18 @@ export default async function compressImage(file: Blob): Promise<Blob> {
   const MIME_TYPE = 'image/jpeg'
   const QUALITY = 0.7
 
+  context?.drawImage(img, 0, 0, canvas.width, canvas.height)
   return new Promise((resolve, reject) => {
-    img.onload = () => {
-      context?.drawImage(img, 0, 0, canvas.width, canvas.height)
-      canvas.toBlob(
-        blob => {
-          if (blob) {
-            resolve(blob)
-          } else {
-            reject(new Error('Canvas is empty'))
-          }
-        },
-        MIME_TYPE,
-        QUALITY,
-      )
-    }
+    canvas.toBlob(
+      blob => {
+        if (blob) {
+          resolve(blob)
+        } else {
+          reject(new Error('Canvas is empty'))
+        }
+      },
+      MIME_TYPE,
+      QUALITY,
+    )
   })
 }

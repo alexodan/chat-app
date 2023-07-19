@@ -11,7 +11,6 @@ export default async function Register() {
     data: { session },
   } = await supabase.auth.getSession()
 
-  console.log('session?:', session)
   if (session) {
     return redirect('/')
   }

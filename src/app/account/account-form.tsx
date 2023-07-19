@@ -1,11 +1,6 @@
 'use client'
 
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import { Database } from '@/types/supabase'
-import {
-  Session,
-  createClientComponentClient,
-} from '@supabase/auth-helpers-nextjs'
 import Input from '@/components/common/Input'
 import Button from '@/components/common/Button'
 import { css } from '../../../styled-system/css'
@@ -31,7 +26,6 @@ export default function AccountForm() {
         .select(`full_name, username, avatar_url`)
         .eq('id', user?.id)
         .single()
-      console.log('data:', data, user)
 
       if (error && status !== 406) {
         throw error
@@ -99,6 +93,7 @@ export default function AccountForm() {
         updated_at: new Date().toISOString(),
       })
       if (error) throw error
+      // TODO: how to update the image profile
       await getProfile()
       alert('Profile updated!')
     } catch (error) {
@@ -109,7 +104,9 @@ export default function AccountForm() {
   }
 
   useEffect(() => {
-    getProfile()
+    if (user) {
+      getProfile()
+    }
   }, [user, getProfile])
 
   return (
@@ -150,14 +147,6 @@ export default function AccountForm() {
         >
           {loading ? 'Loading ...' : 'Update'}
         </Button>
-      </div>
-
-      <div>
-        <form action="/auth/signout" method="get">
-          <button className="button block" type="submit">
-            Sign out
-          </button>
-        </form>
       </div>
     </div>
   )

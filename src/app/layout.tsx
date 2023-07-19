@@ -34,7 +34,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body suppressHydrationWarning={true} className={inter.className}>
         <SupabaseProvider session={session}>
           <SupabaseListener serverAccessToken={session?.access_token} />
           <Menu />

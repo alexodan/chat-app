@@ -45,8 +45,6 @@ export default function AccountForm() {
     }
   }
 
-  console.log('register form...', session)
-
   if (session) {
     return redirect('/messages')
   }

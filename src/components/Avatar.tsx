@@ -27,9 +27,8 @@ export default function Avatar({ url, size }: Props) {
         console.error('Error downloading image: ', error)
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      /* (supabase is a singleton) */
+      /* (`supabase.storage` causes a loop) */
     ],
   )
 
