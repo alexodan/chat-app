@@ -5,7 +5,7 @@ import { AuthError } from '@supabase/supabase-js'
 
 export const SignInSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().min(6),
 })
 
 // FFA everyone is public / private option
