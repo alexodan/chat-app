@@ -6,7 +6,7 @@ import { AuthError } from '@supabase/supabase-js'
 // sign in schema
 export const SignInSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().min(6),
 })
 
 // FFA everyone is public / private option
