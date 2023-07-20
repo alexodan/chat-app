@@ -7,6 +7,7 @@ import { css } from '../../../styled-system/css'
 import Avatar from '@/components/Avatar'
 import compressImage from '@/lib/compressImage'
 import { useSupabase } from '@/components/SupabaseProvider'
+import { StorageError } from '@supabase/storage-js/src/lib/errors'
 
 export default function AccountForm() {
   const { session, supabase } = useSupabase()
@@ -45,6 +46,7 @@ export default function AccountForm() {
   }, [user, supabase])
 
   const handleAvatarUpdate = async (e: ChangeEvent<HTMLInputElement>) => {
+    console.log('Handle avatar update')
     setLoading(true)
     const image = e.target.files?.[0]
     if (!image) {
@@ -58,7 +60,8 @@ export default function AccountForm() {
       })
       setProfilePicture(file)
     } catch (e) {
-      console.error(e)
+      alert('Error updating avatar')
+      console.error('Error updating avatar', e)
     } finally {
       setLoading(false)
     }
@@ -73,31 +76,30 @@ export default function AccountForm() {
     fullName: string | null
     profilePicture: File | null
   }) => {
+    let response
     try {
-      let avatarUrl = null
       setLoading(true)
-
-      // TODO: I don't like having this here in the component
-      if (profilePicture) {
-        const { data } = await supabase.storage
+      if (!avatarUrl && profilePicture) {
+        response = await supabase.storage
+          .from('avatars')
+          .upload(`${user?.id}/avatar.jpeg`, profilePicture)
+      } else if (profilePicture) {
+        response = await supabase.storage
           .from('avatars')
           .update(`${user?.id}/avatar.jpeg`, profilePicture)
-        avatarUrl = data?.path
       }
-
       let { error } = await supabase.from('profiles').upsert({
         id: user?.id as string,
         full_name: fullName,
         username,
-        avatar_url: avatarUrl,
+        avatar_url: response?.data?.path ?? '',
         updated_at: new Date().toISOString(),
       })
       if (error) throw error
-      // TODO: how to update the image profile
-      await getProfile()
       alert('Profile updated!')
     } catch (error) {
       alert('Error updating the data!')
+      console.error(error)
     } finally {
       setLoading(false)
     }

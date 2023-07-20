@@ -30,7 +30,7 @@ export default function AccountForm() {
     if (password !== confirmPassword) {
       alert("Passwords don't match")
     } else {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -41,6 +41,9 @@ export default function AccountForm() {
       })
       if (error) {
         setErrorMessage(error.message)
+      }
+      if (data.session) {
+        return redirect('/messages')
       }
     }
   }
