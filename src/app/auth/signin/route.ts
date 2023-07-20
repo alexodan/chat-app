@@ -3,6 +3,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { AuthError } from '@supabase/supabase-js'
 
+// sign in schema
 export const SignInSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
