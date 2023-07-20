@@ -8,6 +8,7 @@ type Props = {
   size: number
 }
 
+// new Blob(file)?
 export default function Avatar({ url, size }: Props) {
   const supabase = createClientComponentClient<Database>()
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)

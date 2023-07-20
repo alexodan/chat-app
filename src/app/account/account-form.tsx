@@ -7,7 +7,6 @@ import { css } from '../../../styled-system/css'
 import Avatar from '@/components/Avatar'
 import compressImage from '@/lib/compressImage'
 import { useSupabase } from '@/components/SupabaseProvider'
-import { StorageError } from '@supabase/storage-js/src/lib/errors'
 
 export default function AccountForm() {
   const { session, supabase } = useSupabase()

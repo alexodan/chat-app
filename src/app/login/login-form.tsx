@@ -9,7 +9,6 @@ import Input, { input } from '@/components/common/Input'
 import { css, cx } from '../../../styled-system/css'
 import Separator from '@/components/common/Separator'
 import ErrorMessage from '@/components/common/ErrorMessage'
-import { SignInData } from '@/app/auth/signin/route'
 import { useSupabase } from '@/components/SupabaseProvider'
 
 export default function LoginForm() {
@@ -25,20 +24,21 @@ export default function LoginForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setErrorMessage('')
-    const result = (await fetch('/auth/signin', {
+    // hook or rq {  } = useMutation
+    // TODO: extract this somewhere
+    fetch('/auth/signin', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
       .then(res => res.json())
+      .then(() => {
+        console.log('logged in...')
+        router.push('/messages')
+      })
       .catch(err => {
         console.error(err)
         setErrorMessage('Something went wrong. Try again later.')
-      })) as SignInData & { error: string } // TODO: i'm sure there is a better way
-    if (result.error) {
-      setErrorMessage(result.error)
-    } else {
-      router.push('/messages')
-    }
+      })
   }
 
   useEffect(() => {
@@ -58,9 +58,10 @@ export default function LoginForm() {
               <label htmlFor="email-login">Email</label>
               <Input
                 fullWidth
+                // onBlur={} // leavs the field
                 type="email"
                 id="email-login"
-                userCss={css({ mb: 2, mt: 2 })}
+                className={css({ mb: 2, mt: 2 })}
                 placeholder="you@example.com"
                 value={email}
                 onChange={e => {

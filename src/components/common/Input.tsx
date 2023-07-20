@@ -31,7 +31,7 @@ type Props = {
   size?: 'sm' | 'lg'
   visual?: 'outline' | 'solid'
   fullWidth?: boolean
-  userCss?: string // TODO: does this make sense
+  userCss?: string // TODO: re-wrtie
 } & InputHTMLAttributes<HTMLInputElement>
 
 export default function Input({
@@ -39,6 +39,7 @@ export default function Input({
   visual,
   fullWidth,
   userCss,
+  className,
   ...rest
 }: Props) {
   return (
@@ -46,7 +47,7 @@ export default function Input({
       className={cx(
         input({ size, visual }),
         fullWidth ? css({ width: '100%' }) : '',
-        userCss ?? '',
+        className,
       )}
       {...rest}
     />

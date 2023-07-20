@@ -18,6 +18,7 @@ import Image from 'next/image'
 export default function Menu() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { session } = useSupabase()
+  console.log('re-render menu')
 
   return (
     <div className={css({ padding: 2, bgColor: 'teal.600' })}>

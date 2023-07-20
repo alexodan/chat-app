@@ -71,6 +71,7 @@ export default function AccountForm() {
           Username
           <Input
             fullWidth
+            className={css({ mb: 10 })}
             userCss={css({ mb: 2 })}
             type="text"
             name="username"

@@ -21,6 +21,7 @@ export default function SupabaseProvider({
   session: Session | null
   children: React.ReactNode
 }) {
+  // TODO: ref?
   const [supabase] = useState(() => createPagesBrowserClient())
 
   return (
