@@ -31,14 +31,12 @@ type Props = {
   size?: 'sm' | 'lg'
   visual?: 'outline' | 'solid'
   fullWidth?: boolean
-  userCss?: string // TODO: re-wrtie
 } & InputHTMLAttributes<HTMLInputElement>
 
 export default function Input({
   size,
   visual,
   fullWidth,
-  userCss,
   className,
   ...rest
 }: Props) {

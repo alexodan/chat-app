@@ -71,8 +71,7 @@ export default function AccountForm() {
           Username
           <Input
             fullWidth
-            className={css({ mb: 10 })}
-            userCss={css({ mb: 2 })}
+            className={css({ mb: 2 })}
             type="text"
             name="username"
             value={username}
@@ -83,7 +82,7 @@ export default function AccountForm() {
           Email
           <Input
             fullWidth
-            userCss={css({ mb: 2 })}
+            className={css({ mb: 2 })}
             type="email"
             name="email"
             value={email}
@@ -94,7 +93,7 @@ export default function AccountForm() {
           Password
           <Input
             fullWidth
-            userCss={css({ mb: 2 })}
+            className={css({ mb: 2 })}
             type="password"
             name="password"
             value={password}
@@ -105,7 +104,7 @@ export default function AccountForm() {
           Confirm Password
           <Input
             fullWidth
-            userCss={css({ mb: 2 })}
+            className={css({ mb: 2 })}
             type="password"
             name="confirmPassword"
             value={confirmPassword}
@@ -113,7 +112,11 @@ export default function AccountForm() {
           />
         </label>
         <ErrorMessage>{errorMessage}</ErrorMessage>
-        <Button userCss={css({ width: '100%', my: 4 })} size="md" type="submit">
+        <Button
+          className={css({ width: '100%', my: 4 })}
+          size="md"
+          type="submit"
+        >
           Register
         </Button>
       </form>

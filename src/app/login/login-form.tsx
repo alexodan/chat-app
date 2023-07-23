@@ -73,7 +73,6 @@ export default function LoginForm() {
               <label htmlFor="password">Password</label>
               <Input
                 fullWidth
-                userCss={css({ mb: 2 })}
                 placeholder="Password"
                 type="password"
                 id="password"
@@ -85,7 +84,7 @@ export default function LoginForm() {
               />
             </div>
             <ErrorMessage>{errorMessage}</ErrorMessage>
-            <div>
+            <div className={css({ mt: 3 })}>
               <Button fullWidth type="submit">
                 Login
               </Button>
@@ -105,7 +104,7 @@ export default function LoginForm() {
           </form>
           <Separator
             text="or"
-            userCss={css({ my: 4, textTransform: 'uppercase' })}
+            className={css({ my: 4, textTransform: 'uppercase' })}
           />
         </>
       )}
@@ -142,12 +141,11 @@ export default function LoginForm() {
           />
           <Separator
             text="or"
-            userCss={css({ mb: 2, textTransform: 'uppercase' })}
+            className={css({ mb: 2, textTransform: 'uppercase' })}
           />
           <Button
             fullWidth
             onClick={() => setIsMagicLinkLogin(!isMagicLinkLogin)}
-            userCss={css({ mb: 2 })}
           >
             Use email/password
           </Button>

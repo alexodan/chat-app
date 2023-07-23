@@ -28,7 +28,6 @@ type Props = {
   size?: 'sm' | 'md' | 'lg'
   visual?: 'solid' | 'outline'
   fullWidth?: boolean
-  userCss?: string
 } & React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export default function Button({
@@ -36,7 +35,7 @@ export default function Button({
   size,
   visual,
   fullWidth,
-  userCss,
+  className,
   ...rest
 }: Props) {
   return (
@@ -44,7 +43,7 @@ export default function Button({
       className={cx(
         button({ visual, size }),
         fullWidth ? css({ width: '100%' }) : '',
-        userCss ?? '',
+        className ?? '',
       )}
       {...rest}
     >
