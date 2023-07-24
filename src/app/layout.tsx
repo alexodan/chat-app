@@ -9,6 +9,8 @@ import { cookies } from 'next/headers'
 import SupabaseProvider from '@/components/SupabaseProvider'
 import { Database } from '@/types/supabase'
 import SupabaseListener from '@/components/SupabaseListener'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import QueryWrapper from '@/components/QueryWrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,6 +29,7 @@ export default async function RootLayout({
   const supabase = createServerComponentClient({
     cookies,
   })
+  const queryClient = new QueryClient()
 
   const {
     data: { session },
@@ -36,9 +39,11 @@ export default async function RootLayout({
     <html lang="en">
       <body suppressHydrationWarning={true} className={inter.className}>
         <SupabaseProvider session={session}>
-          <SupabaseListener serverAccessToken={session?.access_token} />
-          <Menu />
-          {children}
+          <QueryWrapper>
+            <SupabaseListener serverAccessToken={session?.access_token} />
+            <Menu />
+            {children}
+          </QueryWrapper>
         </SupabaseProvider>
       </body>
     </html>

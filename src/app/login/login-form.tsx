@@ -10,6 +10,10 @@ import { css, cx } from '../../../styled-system/css'
 import Separator from '@/components/common/Separator'
 import ErrorMessage from '@/components/common/ErrorMessage'
 import { useSupabase } from '@/components/SupabaseProvider'
+import { useMutation } from '@tanstack/react-query'
+import { SignInData } from '../auth/signin/route'
+import axios, { AxiosResponse } from 'axios'
+import { AuthError } from '@supabase/supabase-js'
 
 export default function LoginForm() {
   const { supabase } = useSupabase()
@@ -21,24 +25,15 @@ export default function LoginForm() {
 
   const [errorMessage, setErrorMessage] = useState<string>()
 
+  const mutation = useMutation({
+    mutationFn: ({ email, password }: SignInData) => {
+      return axios.post('/auth/signin', { email, password })
+    },
+  })
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setErrorMessage('')
-    // hook or rq {  } = useMutation
-    // TODO: extract this somewhere
-    fetch('/auth/signin', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    })
-      .then(res => res.json())
-      .then(() => {
-        console.log('logged in...')
-        router.push('/messages')
-      })
-      .catch(err => {
-        console.error(err)
-        setErrorMessage('Something went wrong. Try again later.')
-      })
+    mutation.mutate({ email, password })
   }
 
   useEffect(() => {
@@ -47,6 +42,11 @@ export default function LoginForm() {
       setErrorMessage(error.get('error_description') || 'Something went wrong')
     }
   }, [])
+
+  if (mutation.isSuccess) {
+    router.push('/messages')
+    return null
+  }
 
   return (
     <>
@@ -59,6 +59,7 @@ export default function LoginForm() {
               <Input
                 fullWidth
                 // onBlur={} // leavs the field
+                required
                 type="email"
                 id="email-login"
                 className={css({ mb: 2, mt: 2 })}
@@ -73,6 +74,7 @@ export default function LoginForm() {
               <label htmlFor="password">Password</label>
               <Input
                 fullWidth
+                required
                 placeholder="Password"
                 type="password"
                 id="password"
@@ -83,9 +85,20 @@ export default function LoginForm() {
                 }}
               />
             </div>
-            <ErrorMessage>{errorMessage}</ErrorMessage>
+            {errorMessage || mutation.isError ? (
+              <ErrorMessage>
+                {errorMessage
+                  ? errorMessage
+                  : (mutation.error as AuthError).message}
+              </ErrorMessage>
+            ) : null}
             <div className={css({ mt: 3 })}>
-              <Button fullWidth type="submit">
+              <Button
+                isLoading={mutation.isLoading}
+                fullWidth
+                type="submit"
+                disabled={mutation.isLoading}
+              >
                 Login
               </Button>
             </div>
@@ -112,6 +125,8 @@ export default function LoginForm() {
         <Button
           fullWidth
           onClick={() => setIsMagicLinkLogin(!isMagicLinkLogin)}
+          disabled={mutation.isLoading}
+          isLoading={mutation.isLoading}
         >
           Use magic link
         </Button>
@@ -146,6 +161,8 @@ export default function LoginForm() {
           <Button
             fullWidth
             onClick={() => setIsMagicLinkLogin(!isMagicLinkLogin)}
+            disabled={mutation.isLoading}
+            isLoading={mutation.isLoading}
           >
             Use email/password
           </Button>
