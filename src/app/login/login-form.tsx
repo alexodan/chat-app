@@ -2,7 +2,6 @@
 
 import { Auth } from '@supabase/auth-ui-react'
 import { FormEvent, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Button, { button } from '@/components/common/Button'
 import Input, { input } from '@/components/common/Input'
@@ -12,12 +11,12 @@ import ErrorMessage from '@/components/common/ErrorMessage'
 import { useSupabase } from '@/components/SupabaseProvider'
 import { useMutation } from '@tanstack/react-query'
 import { SignInData } from '../auth/signin/route'
-import axios, { AxiosResponse } from 'axios'
 import { AuthError } from '@supabase/supabase-js'
+import axios from 'axios'
+import { redirect } from 'next/navigation'
 
 export default function LoginForm() {
   const { supabase } = useSupabase()
-  const router = useRouter()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -44,8 +43,7 @@ export default function LoginForm() {
   }, [])
 
   if (mutation.isSuccess) {
-    router.push('/messages')
-    return null
+    return redirect('/messages')
   }
 
   return (
@@ -54,11 +52,9 @@ export default function LoginForm() {
         <>
           <form onSubmit={handleSubmit}>
             <div>
-              {/* Could be a TextField comp, given is little used I'll skip it for now */}
               <label htmlFor="email-login">Email</label>
               <Input
                 fullWidth
-                // onBlur={} // leavs the field
                 required
                 type="email"
                 id="email-login"
@@ -89,7 +85,9 @@ export default function LoginForm() {
               <ErrorMessage>
                 {errorMessage
                   ? errorMessage
-                  : (mutation.error as AuthError).message}
+                  : mutation.error instanceof AuthError
+                  ? mutation.error.message
+                  : 'An error occurred. Try again later.'}
               </ErrorMessage>
             ) : null}
             <div className={css({ mt: 3 })}>

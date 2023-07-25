@@ -9,7 +9,6 @@ import { cookies } from 'next/headers'
 import SupabaseProvider from '@/components/SupabaseProvider'
 import { Database } from '@/types/supabase'
 import SupabaseListener from '@/components/SupabaseListener'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import QueryWrapper from '@/components/QueryWrapper'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -26,10 +25,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = createServerComponentClient({
+  const supabase = createServerComponentClient<Database>({
     cookies,
   })
-  const queryClient = new QueryClient()
 
   const {
     data: { session },

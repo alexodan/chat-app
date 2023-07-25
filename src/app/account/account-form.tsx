@@ -1,114 +1,68 @@
 'use client'
 
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Input from '@/components/common/Input'
 import Button from '@/components/common/Button'
 import { css } from '../../../styled-system/css'
-import Avatar from '@/components/Avatar'
-import compressImage from '@/lib/compressImage'
 import { useSupabase } from '@/components/SupabaseProvider'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import useAvatar from '@/components/useAvatar'
+import useProfile from '@/components/useProfile'
 
 export default function AccountForm() {
   const { session, supabase } = useSupabase()
-  const [loading, setLoading] = useState(true)
-  const [fullName, setFullName] = useState<string | null>(null)
-  const [username, setUsername] = useState<string | null>(null)
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
-  const [profilePicture, setProfilePicture] = useState<File | null>(null)
+  const [fullName, setFullName] = useState<string | null>('')
+  const [username, setUsername] = useState<string | null>('')
+  const [avatarUrl, setAvatarUrl] = useState<string | null>('')
+  const { imageFile, renderAvatar, handleAvatarChange } = useAvatar({
+    avatarUrl,
+    size: 248,
+  })
+  const { getUserProfile, updateUserProfile } = useProfile()
+
   const user = session?.user
-
-  const getProfile = useCallback(async () => {
-    try {
-      setLoading(true)
-
-      let { data, error, status } = await supabase
-        .from('profiles')
-        .select(`full_name, username, avatar_url`)
-        .eq('id', user?.id)
-        .single()
-
-      if (error && status !== 406) {
-        throw error
-      }
-
-      if (data) {
-        setFullName(data.full_name)
-        setUsername(data.username)
-        setAvatarUrl(data.avatar_url)
-      }
-    } catch (error) {
-      alert('Error loading user data!')
-      console.error(error)
-    } finally {
-      setLoading(false)
+  const { data, isError, isLoading } = useQuery(['profile'], async () => {
+    if (user) {
+      return getUserProfile(user.id)
     }
-  }, [user, supabase])
+  })
 
-  const handleAvatarUpdate = async (e: ChangeEvent<HTMLInputElement>) => {
-    console.log('Handle avatar update')
-    setLoading(true)
-    const image = e.target.files?.[0]
-    if (!image) {
-      setLoading(false)
-      return
-    }
-    try {
-      const compressedImage = await compressImage(image)
-      const file = new File([compressedImage], 'avatar.jpeg', {
-        type: 'image/jpeg',
-      })
-      setProfilePicture(file)
-    } catch (e) {
-      alert('Error updating avatar')
-      console.error('Error updating avatar', e)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const updateProfile = async ({
-    fullName,
-    username,
-    profilePicture,
-  }: {
-    username: string | null
-    fullName: string | null
-    profilePicture: File | null
-  }) => {
-    let response
-    try {
-      setLoading(true)
-      if (!avatarUrl && profilePicture) {
-        response = await supabase.storage
-          .from('avatars')
-          .upload(`${user?.id}/avatar.jpeg`, profilePicture)
-      } else if (profilePicture) {
-        response = await supabase.storage
-          .from('avatars')
-          .update(`${user?.id}/avatar.jpeg`, profilePicture)
+  const mutation = useMutation(
+    async ({
+      fullName,
+      username,
+    }: {
+      fullName: string | null
+      username: string | null
+    }) => {
+      if (user) {
+        return updateUserProfile({
+          id: user.id,
+          fullName,
+          username,
+          avatarUrl,
+          imageFile,
+        })
       }
-      let { error } = await supabase.from('profiles').upsert({
-        id: user?.id as string,
-        full_name: fullName,
-        username,
-        avatar_url: response?.data?.path ?? '',
-        updated_at: new Date().toISOString(),
-      })
-      if (error) throw error
-      alert('Profile updated!')
+    },
+  )
+
+  const updateProfile = async () => {
+    try {
+      mutation.mutate({ fullName, username })
     } catch (error) {
       alert('Error updating the data!')
       console.error(error)
-    } finally {
-      setLoading(false)
     }
   }
 
   useEffect(() => {
-    if (user) {
-      getProfile()
+    if (data) {
+      setFullName(data.full_name)
+      setUsername(data.username)
+      setAvatarUrl(data.avatar_url)
     }
-  }, [user, getProfile])
+  }, [data])
 
   return (
     <div className={css({ px: 4, py: 2 })}>
@@ -123,6 +77,7 @@ export default function AccountForm() {
           id="fullName"
           type="text"
           value={fullName || ''}
+          disabled={isLoading}
           onChange={e => setFullName(e.target.value)}
         />
       </div>
@@ -132,21 +87,36 @@ export default function AccountForm() {
           id="username"
           type="text"
           value={username || ''}
+          disabled={isLoading}
           onChange={e => setUsername(e.target.value)}
         />
       </div>
       <div className={css({ mt: 2 })}>
         <label htmlFor="avatar">Profile picture</label>
-        <Avatar url={avatarUrl} size={248} />
-        <Input id="avatar" type="file" onChange={handleAvatarUpdate} />
+        {renderAvatar()}
+        <Input
+          id="avatar"
+          type="file"
+          disabled={isLoading}
+          onChange={handleAvatarChange}
+        />
+        {mutation.isError && (
+          // should I extract this thing
+          <div className={css({ color: 'red-500' })}>
+            {mutation.isError && mutation.error instanceof Error
+              ? mutation.error.message
+              : 'An error occurred, try again later'}
+          </div>
+        )}
       </div>
 
       <div className={css({ mt: 2 })}>
         <Button
-          onClick={() => updateProfile({ fullName, username, profilePicture })}
-          disabled={loading}
+          onClick={updateProfile}
+          disabled={mutation.isLoading}
+          isLoading={mutation.isLoading}
         >
-          {loading ? 'Loading ...' : 'Update'}
+          Update
         </Button>
       </div>
     </div>

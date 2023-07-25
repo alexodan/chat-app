@@ -13,7 +13,7 @@ export default async function HomePage() {
   } = await supabase.auth.getSession()
 
   if (session) {
-    return redirect('/')
+    return redirect('/messages')
   }
 
   return (

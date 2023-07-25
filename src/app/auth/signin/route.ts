@@ -8,13 +8,6 @@ export const SignInSchema = z.object({
   password: z.string().min(6),
 })
 
-// FFA everyone is public / private option
-// how to add a contact?
-// - email
-// - accepts -> it creates the record in contacts table (2 records u 1 u 2)
-
-// list of online users - online/offline -> ping (the server pings the browser) / (supabase) lambda-edge functions runs on server
-
 export type SignInData = z.infer<typeof SignInSchema>
 
 export async function POST(req: Request, res: Response) {
