@@ -21,11 +21,14 @@ export default function AccountForm() {
   const { getUserProfile, updateUserProfile } = useProfile()
 
   const user = session?.user
-  const { data, isError, isLoading } = useQuery(['profile'], async () => {
-    if (user) {
-      return getUserProfile(user.id)
-    }
-  })
+  const { data, isError, error, isLoading } = useQuery(
+    ['profile'],
+    async () => {
+      if (user) {
+        return getUserProfile(user.id)
+      }
+    },
+  )
 
   const mutation = useMutation(
     async ({

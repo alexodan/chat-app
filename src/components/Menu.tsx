@@ -17,7 +17,7 @@ import Image from 'next/image'
 
 export default function Menu() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { session } = useSupabase()
+  const { session, supabase } = useSupabase()
 
   return (
     <div className={css({ padding: 2, bgColor: 'teal.600' })}>
@@ -40,7 +40,13 @@ export default function Menu() {
               </li>
               {session && (
                 <li>
-                  <Link onClick={onClose} href="/auth/signout">
+                  <Link
+                    onClick={async () => {
+                      await supabase.auth.signOut()
+                      onClose()
+                    }}
+                    href="/login"
+                  >
                     Sign Out
                   </Link>
                 </li>

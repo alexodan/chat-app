@@ -10,10 +10,12 @@ import Separator from '@/components/common/Separator'
 import ErrorMessage from '@/components/common/ErrorMessage'
 import { useSupabase } from '@/components/SupabaseProvider'
 import { useMutation } from '@tanstack/react-query'
-import { SignInData } from '../auth/signin/route'
 import { AuthError } from '@supabase/supabase-js'
-import axios from 'axios'
-import { redirect } from 'next/navigation'
+
+type SignInData = {
+  email: string
+  password: string
+}
 
 export default function LoginForm() {
   const { supabase } = useSupabase()
@@ -25,8 +27,11 @@ export default function LoginForm() {
   const [errorMessage, setErrorMessage] = useState<string>()
 
   const mutation = useMutation({
-    mutationFn: ({ email, password }: SignInData) => {
-      return axios.post('/auth/signin', { email, password })
+    mutationFn: async ({ email, password }: SignInData) => {
+      return await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
     },
   })
 
@@ -41,10 +46,6 @@ export default function LoginForm() {
       setErrorMessage(error.get('error_description') || 'Something went wrong')
     }
   }, [])
-
-  if (mutation.isSuccess) {
-    return redirect('/messages')
-  }
 
   return (
     <>
