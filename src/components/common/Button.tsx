@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { css, cva, cx } from '../../../styled-system/css'
 
 export const button = cva({
@@ -27,16 +28,17 @@ export const button = cva({
 type Props = {
   size?: 'sm' | 'md' | 'lg'
   visual?: 'solid' | 'outline'
+  isLoading?: boolean
   fullWidth?: boolean
-  userCss?: string
 } & React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export default function Button({
   children,
   size,
   visual,
+  isLoading,
   fullWidth,
-  userCss,
+  className,
   ...rest
 }: Props) {
   return (
@@ -44,11 +46,23 @@ export default function Button({
       className={cx(
         button({ visual, size }),
         fullWidth ? css({ width: '100%' }) : '',
-        userCss ?? '',
+        className ?? '',
       )}
       {...rest}
     >
-      {children}
+      {isLoading ? (
+        <Image
+          className={css({
+            animation: 'spin 3s linear infinite',
+          })}
+          src="/spinner.svg"
+          width={10}
+          height={10}
+          alt="Loading"
+        />
+      ) : (
+        children
+      )}
     </button>
   )
 }

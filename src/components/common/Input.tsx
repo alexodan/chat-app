@@ -20,6 +20,12 @@ export const input = cva({
       sm: { padding: '2', fontSize: '12px' },
       lg: { padding: '4', fontSize: '24px' },
     },
+    disabled: {
+      true: {
+        opacity: 0.5,
+        cursor: 'not-allowed',
+      },
+    },
   },
   defaultVariants: {
     visual: 'outline',
@@ -31,21 +37,21 @@ type Props = {
   size?: 'sm' | 'lg'
   visual?: 'outline' | 'solid'
   fullWidth?: boolean
-  userCss?: string // TODO: re-wrtie
 } & InputHTMLAttributes<HTMLInputElement>
 
 export default function Input({
   size,
   visual,
   fullWidth,
-  userCss,
   className,
+  disabled,
   ...rest
 }: Props) {
   return (
     <input
+      disabled={disabled}
       className={cx(
-        input({ size, visual }),
+        input({ size, visual, disabled }),
         fullWidth ? css({ width: '100%' }) : '',
         className,
       )}

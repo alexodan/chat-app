@@ -2,7 +2,6 @@
 
 import { Auth } from '@supabase/auth-ui-react'
 import { FormEvent, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Button, { button } from '@/components/common/Button'
 import Input, { input } from '@/components/common/Input'
@@ -10,10 +9,16 @@ import { css, cx } from '../../../styled-system/css'
 import Separator from '@/components/common/Separator'
 import ErrorMessage from '@/components/common/ErrorMessage'
 import { useSupabase } from '@/components/SupabaseProvider'
+import { useMutation } from '@tanstack/react-query'
+import { AuthError } from '@supabase/supabase-js'
+
+type SignInData = {
+  email: string
+  password: string
+}
 
 export default function LoginForm() {
   const { supabase } = useSupabase()
-  const router = useRouter()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,24 +26,18 @@ export default function LoginForm() {
 
   const [errorMessage, setErrorMessage] = useState<string>()
 
+  const mutation = useMutation({
+    mutationFn: async ({ email, password }: SignInData) => {
+      return await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+    },
+  })
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setErrorMessage('')
-    // hook or rq {  } = useMutation
-    // TODO: extract this somewhere
-    fetch('/auth/signin', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    })
-      .then(res => res.json())
-      .then(() => {
-        console.log('logged in...')
-        router.push('/messages')
-      })
-      .catch(err => {
-        console.error(err)
-        setErrorMessage('Something went wrong. Try again later.')
-      })
+    mutation.mutate({ email, password })
   }
 
   useEffect(() => {
@@ -54,11 +53,10 @@ export default function LoginForm() {
         <>
           <form onSubmit={handleSubmit}>
             <div>
-              {/* Could be a TextField comp, given is little used I'll skip it for now */}
               <label htmlFor="email-login">Email</label>
               <Input
                 fullWidth
-                // onBlur={} // leavs the field
+                required
                 type="email"
                 id="email-login"
                 className={css({ mb: 2, mt: 2 })}
@@ -73,7 +71,7 @@ export default function LoginForm() {
               <label htmlFor="password">Password</label>
               <Input
                 fullWidth
-                userCss={css({ mb: 2 })}
+                required
                 placeholder="Password"
                 type="password"
                 id="password"
@@ -84,9 +82,22 @@ export default function LoginForm() {
                 }}
               />
             </div>
-            <ErrorMessage>{errorMessage}</ErrorMessage>
-            <div>
-              <Button fullWidth type="submit">
+            {errorMessage || mutation.isError ? (
+              <ErrorMessage>
+                {errorMessage
+                  ? errorMessage
+                  : mutation.error instanceof AuthError
+                  ? mutation.error.message
+                  : 'An error occurred. Try again later.'}
+              </ErrorMessage>
+            ) : null}
+            <div className={css({ mt: 3 })}>
+              <Button
+                isLoading={mutation.isLoading}
+                fullWidth
+                type="submit"
+                disabled={mutation.isLoading}
+              >
                 Login
               </Button>
             </div>
@@ -105,7 +116,7 @@ export default function LoginForm() {
           </form>
           <Separator
             text="or"
-            userCss={css({ my: 4, textTransform: 'uppercase' })}
+            className={css({ my: 4, textTransform: 'uppercase' })}
           />
         </>
       )}
@@ -113,6 +124,8 @@ export default function LoginForm() {
         <Button
           fullWidth
           onClick={() => setIsMagicLinkLogin(!isMagicLinkLogin)}
+          disabled={mutation.isLoading}
+          isLoading={mutation.isLoading}
         >
           Use magic link
         </Button>
@@ -142,12 +155,13 @@ export default function LoginForm() {
           />
           <Separator
             text="or"
-            userCss={css({ mb: 2, textTransform: 'uppercase' })}
+            className={css({ mb: 2, textTransform: 'uppercase' })}
           />
           <Button
             fullWidth
             onClick={() => setIsMagicLinkLogin(!isMagicLinkLogin)}
-            userCss={css({ mb: 2 })}
+            disabled={mutation.isLoading}
+            isLoading={mutation.isLoading}
           >
             Use email/password
           </Button>

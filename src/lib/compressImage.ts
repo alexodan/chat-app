@@ -12,7 +12,6 @@ export default async function compressImage(file: Blob): Promise<Blob> {
   canvas.height = 248
 
   const context = canvas.getContext('2d')
-  // TODO: resize so shape iss not deformed maybe bonus
 
   const MIME_TYPE = 'image/jpeg'
   const QUALITY = 0.7
