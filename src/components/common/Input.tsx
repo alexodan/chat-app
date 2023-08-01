@@ -1,7 +1,7 @@
 import { css, cva, cx } from '../../../styled-system/css'
 import { InputHTMLAttributes } from 'react'
 
-export const inputStyles = cva({
+export const input = cva({
   base: {
     display: 'flex',
     borderWidth: '1px',
@@ -52,7 +52,7 @@ export default function Input({
       disabled={disabled}
       // https://panda-css.com/docs/concepts/writing-styles#merging
       className={cx(
-        inputStyles({ size, visual, disabled }),
+        input({ size, visual, disabled }),
         fullWidth ? css({ width: '100%' }) : '',
         className,
       )}
