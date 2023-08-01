@@ -40,6 +40,33 @@ export interface Database {
           }
         ]
       }
+      messages: {
+        Row: {
+          chat_id: string
+          content: string | null
+          from_user: string
+          id: number
+          timestamp: string | null
+          to_user: string
+        }
+        Insert: {
+          chat_id?: string
+          content?: string | null
+          from_user: string
+          id?: number
+          timestamp?: string | null
+          to_user?: string
+        }
+        Update: {
+          chat_id?: string
+          content?: string | null
+          from_user?: string
+          id?: number
+          timestamp?: string | null
+          to_user?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

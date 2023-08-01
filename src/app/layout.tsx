@@ -10,6 +10,7 @@ import SupabaseProvider from '@/components/SupabaseProvider'
 import { Database } from '@/types/supabase'
 import SupabaseListener from '@/components/SupabaseListener'
 import QueryWrapper from '@/components/QueryWrapper'
+import { createServerClient } from '@/lib/supabase'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,9 +26,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = createServerComponentClient<Database>({
-    cookies,
-  })
+  const supabase = createServerClient()
 
   const {
     data: { session },
