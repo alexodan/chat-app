@@ -11,6 +11,7 @@ export default async function Message() {
     return redirect('/login')
   }
 
+  // TODO: If I had the chat id here I would query by that
   const { data: userMessages } = await supabase
     .from('messages')
     .select('id, chat_id, from_user, to_user, content, timestamp')
@@ -18,9 +19,10 @@ export default async function Message() {
       `from_user.eq.${data.session.user.id}, to_user.eq.${data.session.user.id}`,
     )
 
-  const toUserId = userMessages?.find(
-    message => message.to_user !== data.session.user.id,
-  )?.to_user
+  const toUserId =
+    userMessages?.[0].to_user === data.session.user.id
+      ? userMessages?.[0].from_user
+      : userMessages?.[0].to_user
 
   const toUser = await supabase
     .from('profiles')

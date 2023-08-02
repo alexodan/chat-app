@@ -1,8 +1,10 @@
+'use client'
+
 import { css } from '../../styled-system/css'
 import Link from 'next/link'
-import { uuid } from 'uuidv4'
 
 type Props = {
+  chatId: string
   contact: {
     id: string
     full_name: string | null
@@ -10,8 +12,7 @@ type Props = {
   }
 }
 
-export default function Contact({ contact }: Props) {
-  const chatId = uuid()
+export default function Contact({ chatId, contact }: Props) {
   return (
     <div
       className={css({
@@ -22,7 +23,9 @@ export default function Contact({ contact }: Props) {
     >
       <li>
         <Link href={`/messages/${chatId}`}>
-          <div>{contact.full_name}</div>
+          <div>
+            {contact.full_name} - Chat id: {chatId}
+          </div>
         </Link>
       </li>
     </div>

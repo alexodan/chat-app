@@ -44,6 +44,7 @@ export default function Conversation({
     if (!message) return
 
     const messageToSend = {
+      // TODO: check the chatId not to create multiple chats for the same users
       chat_id: chatId,
       from_user: userProfile.id,
       to_user: userRecipient.id,
@@ -81,11 +82,11 @@ export default function Conversation({
           (message.from_user == session?.user.id &&
             message.to_user == userRecipient.id) ||
           (message.from_user == userRecipient.id &&
-            message.from_user == session?.user.id)
+            message.to_user == session?.user.id)
         )
       })
-      // TODO: data normalization (new types? service folder/file?)
       .map(message => {
+        // TODO: data normalization (new types? service folder/file?)
         return {
           id: message.id,
           content: message.content,
@@ -133,8 +134,6 @@ export default function Conversation({
       channel.unsubscribe()
     }
   }, [supabase])
-
-  console.log('messages:', messages, userRecipient)
 
   return (
     <div className={css({ border: '1px solid red' })}>

@@ -17,9 +17,6 @@ export default async function MessagesPage() {
 
   const { data: contacts } = await supabase.from('profiles').select('*')
 
-  // const displayContacts =
-  //   contacts?.filter(contact => contact.id !== data.session.user.id) ?? []
-
   const { data: userMessages } = await supabase
     .from('messages')
     .select('id, chat_id, from_user, to_user, content, timestamp')
@@ -51,9 +48,6 @@ export default async function MessagesPage() {
     >(),
   )
 
-  console.log('userMessages:', userMessages)
-  console.log('conversations:', conversations)
-
   return (
     <>
       <h2 className={css({ borderBottom: '1px solid gray', fontSize: 'xl' })}>
@@ -61,7 +55,11 @@ export default async function MessagesPage() {
       </h2>
       <ul>
         {Array.from(conversations?.values() ?? []).map(conversation => (
-          <Contact key={conversation.chatId} contact={conversation.contact} />
+          <Contact
+            key={conversation.chatId}
+            chatId={conversation.chatId}
+            contact={conversation.contact}
+          />
         ))}
       </ul>
       {/*<h2 className={css({ borderBottom: '1px solid gray', fontSize: 'xl' })}>*/}
