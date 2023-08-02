@@ -11,7 +11,7 @@ type Props = {
 export default function Message(props: Props) {
   return (
     <div className={css({})}>
-      {props.username}: {props.content}
+      {props.username} {props.isOwnMessage ? '(you)' : ''}: {props.content}
     </div>
   )
 }

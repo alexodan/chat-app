@@ -102,34 +102,38 @@ export default function Conversation({
   }, [session?.user, userMessages, userRecipient, userProfile])
 
   useEffect(() => {
-    const channel = supabase.channel('messages').on(
-      'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'messages',
-        filter: `to_user = eq.${userRecipient.id}`,
-      },
-      payload => {
-        console.log('Message from channel:', payload.new)
-        const newMessage = payload.new
-        setMessages((messages: MessageDisplay[]) => {
-          return [
-            ...messages,
-            {
-              id: newMessage.id,
-              content: newMessage.content,
-              timestamp: newMessage.timestamp,
-              isUserMessage: newMessage.from_user == session?.user.id,
-              username:
-                newMessage.from_user == session?.user.id
-                  ? userProfile?.username
-                  : userRecipient?.username,
-            },
-          ]
-        })
-      },
-    )
+    const channel = supabase
+      .channel('messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          // TODO: isn't this a security issue?
+          filter: `to_user=eq.${userProfile.id}`,
+        },
+        payload => {
+          console.log('Message from channel:', payload.new)
+          const newMessage = payload.new
+          setMessages((messages: MessageDisplay[]) => {
+            return [
+              ...messages,
+              {
+                id: newMessage.id,
+                content: newMessage.content,
+                timestamp: newMessage.timestamp,
+                isUserMessage: newMessage.from_user == session?.user.id,
+                username:
+                  newMessage.from_user == session?.user.id
+                    ? userProfile?.username
+                    : userRecipient?.username,
+              },
+            ]
+          })
+        },
+      )
+      .subscribe()
     return () => {
       channel.unsubscribe()
     }
