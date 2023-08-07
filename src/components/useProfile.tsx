@@ -17,26 +17,18 @@ export default function useProfile() {
     id,
     fullName,
     username,
-    avatarUrl,
     imageFile,
   }: {
     id: string
     fullName: string | null
     username: string | null
-    avatarUrl: string | null
     imageFile: File | null
   }) => {
     let avatarResponse
     if (imageFile) {
-      if (avatarUrl) {
-        avatarResponse = await supabase.storage
-          .from('avatars')
-          .update(`${id}/avatar.jpeg`, imageFile)
-      } else {
-        avatarResponse = await supabase.storage
-          .from('avatars')
-          .upload(`${id}/avatar.jpeg`, imageFile)
-      }
+      avatarResponse = await supabase.storage
+        .from('avatars')
+        .update(`${id}/avatar.jpeg`, imageFile)
       if (avatarResponse.error) {
         throw new Error('Error uploading avatar')
       }

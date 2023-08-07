@@ -8,9 +8,39 @@ import { css } from '../../../styled-system/css'
 import Input from '@/components/common/Input'
 import ErrorMessage from '@/components/common/ErrorMessage'
 import { useSupabase } from '@/components/SupabaseProvider'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { useMutation } from '@tanstack/react-query'
 
-export default function AccountForm() {
-  const { supabase, session } = useSupabase()
+function useSignUp() {
+  const { supabase } = useSupabase()
+
+  async function signUp({
+    email,
+    username,
+    password,
+  }: {
+    email: string
+    username: string
+    password: string
+  }) {
+    return supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+  }
+
+  return useMutation(signUp)
+}
+
+export default function RegisterForm() {
+  const { session } = useSupabase()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -18,6 +48,8 @@ export default function AccountForm() {
     confirmPassword: '',
   })
   const [errorMessage, setErrorMessage] = useState<string>()
+  const { mutateAsync, isLoading } = useSignUp()
+
   const { email, username, password, confirmPassword } = formData
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,28 +60,23 @@ export default function AccountForm() {
     e.preventDefault()
     setErrorMessage('')
     if (password !== confirmPassword) {
-      alert("Passwords don't match")
+      setErrorMessage("Passwords don't match")
     } else {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username,
-          },
-        },
-      })
+      const { error } = await mutateAsync({ email, username, password })
       if (error) {
         setErrorMessage(error.message)
-      }
-      if (data.session) {
-        return redirect('/messages')
+      } else {
+        toast.success('Account created successfully, check your email inbox!', {
+          position: 'top-center',
+          autoClose: 3000,
+          closeOnClick: true,
+        })
       }
     }
   }
 
   if (session) {
-    return redirect('/messages')
+    redirect('/messages')
   }
 
   return (
@@ -65,6 +92,7 @@ export default function AccountForm() {
         m: '0 auto',
       })}
     >
+      <ToastContainer />
       <h2 className={css({ fontSize: '2xl', mb: 2 })}>Register</h2>
       <form onSubmit={handleSubmit} className={css({ width: '100%' })}>
         <label>
@@ -116,6 +144,7 @@ export default function AccountForm() {
           className={css({ width: '100%', my: 4 })}
           size="md"
           type="submit"
+          isLoading={isLoading}
         >
           Register
         </Button>

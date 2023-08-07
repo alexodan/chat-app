@@ -1,5 +1,5 @@
-import AccountForm from './account-form'
+import AccountDetail from '@/app/account/account-detail'
 
 export default async function AccountPage() {
-  return <AccountForm />
+  return <AccountDetail />
 }
