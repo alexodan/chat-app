@@ -1,5 +1,5 @@
 // Compress image to 248x248 using canvas
-export default async function compressImage(file: Blob): Promise<Blob> {
+export async function compressImage(file: Blob): Promise<Blob> {
   if (!/image/i.test(file.type)) {
     alert('File ' + file.name + ' is not an image.')
     throw new Error('File ' + file.name + ' is not an image.')

@@ -1,86 +1,63 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Input from '@/components/common/Input'
-import Button from '@/components/common/Button'
 import { css } from '../../../styled-system/css'
-import { useSupabase } from '@/components/SupabaseProvider'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import Button from '@/components/common/Button'
+import ErrorMessage from '@/components/common/ErrorMessage'
+import Input from '@/components/common/Input'
+import { useState } from 'react'
 import useAvatar from '@/components/useAvatar'
-import useProfile from '@/components/useProfile'
 
-export default function AccountForm() {
-  const { session, supabase } = useSupabase()
-  const [fullName, setFullName] = useState<string | null>('')
-  const [username, setUsername] = useState<string | null>('')
-  const [avatarUrl, setAvatarUrl] = useState<string | null>('')
-  const { imageFile, renderAvatar, handleAvatarChange } = useAvatar({
-    avatarUrl,
+type Props = {
+  email: string
+  userInfo: {
+    full_name: string | null
+    username: string | null
+    avatar_url: string | null
+  }
+  isLoading: boolean
+  error: string | null
+  onSubmit: (formData: {
+    fullName: string | null
+    username: string | null
+    imageFile: File | null
+  }) => void
+}
+
+export default function AccountForm({
+  email,
+  userInfo,
+  isLoading,
+  error,
+  onSubmit,
+}: Props) {
+  const [fullName, setFullName] = useState<string | null>(userInfo.full_name)
+  const [username, setUsername] = useState<string | null>(userInfo.username)
+
+  const { AvatarPreview, imageFile, handleAvatarChange, imageSrc } = useAvatar({
+    avatarUrl: userInfo.avatar_url,
     size: 248,
   })
-  const { getUserProfile, updateUserProfile } = useProfile()
 
-  const user = session?.user
-  const { data, isError, error, isLoading } = useQuery(
-    ['profile'],
-    async () => {
-      if (user) {
-        return getUserProfile(user.id)
-      }
-    },
-  )
-
-  const mutation = useMutation(
-    async ({
-      fullName,
-      username,
-    }: {
-      fullName: string | null
-      username: string | null
-    }) => {
-      if (user) {
-        return updateUserProfile({
-          id: user.id,
+  return (
+    <form
+      onSubmit={() =>
+        onSubmit({
           fullName,
           username,
-          avatarUrl,
           imageFile,
         })
       }
-    },
-  )
-
-  const updateProfile = async () => {
-    try {
-      mutation.mutate({ fullName, username })
-    } catch (error) {
-      alert('Error updating the data!')
-      console.error(error)
-    }
-  }
-
-  useEffect(() => {
-    if (data) {
-      setFullName(data.full_name)
-      setUsername(data.username)
-      setAvatarUrl(data.avatar_url)
-    }
-  }, [data])
-
-  return (
-    <div className={css({ px: 4, py: 2 })}>
-      <h2 className={css({ fontSize: '2xl' })}>Account details</h2>
+    >
       <div className={css({ mt: 2 })}>
         <label htmlFor="email">Email</label>
-        <Input id="email" type="text" value={session?.user.email} disabled />
+        <Input id="email" type="text" value={email} disabled />
       </div>
       <div className={css({ mt: 2 })}>
         <label htmlFor="fullName">Full Name</label>
         <Input
           id="fullName"
           type="text"
-          value={fullName || ''}
-          disabled={isLoading}
+          value={fullName ?? ''}
           onChange={e => setFullName(e.target.value)}
         />
       </div>
@@ -89,39 +66,20 @@ export default function AccountForm() {
         <Input
           id="username"
           type="text"
-          value={username || ''}
-          disabled={isLoading}
+          value={username ?? ''}
           onChange={e => setUsername(e.target.value)}
         />
       </div>
       <div className={css({ mt: 2 })}>
         <label htmlFor="avatar">Profile picture</label>
-        {renderAvatar()}
-        <Input
-          id="avatar"
-          type="file"
-          disabled={isLoading}
-          onChange={handleAvatarChange}
-        />
-        {mutation.isError && (
-          // should I extract this thing
-          <div className={css({ color: 'red-500' })}>
-            {mutation.isError && mutation.error instanceof Error
-              ? mutation.error.message
-              : 'An error occurred, try again later'}
-          </div>
-        )}
+        <AvatarPreview />
+        <Input id="avatar" type="file" onChange={handleAvatarChange} />
+        <ErrorMessage>{error}</ErrorMessage>
       </div>
 
       <div className={css({ mt: 2 })}>
-        <Button
-          onClick={updateProfile}
-          disabled={mutation.isLoading}
-          isLoading={mutation.isLoading}
-        >
-          Update
-        </Button>
+        <Button isLoading={isLoading}>Update</Button>
       </div>
-    </div>
+    </form>
   )
 }

@@ -1,7 +1,9 @@
 import Image from 'next/image'
-import { ChangeEvent, useEffect, useState } from 'react'
-import compressImage from '@/lib/compressImage'
+import { ChangeEvent, useState } from 'react'
+import { compressImage } from '@/lib/compressImage'
 import { useSupabase } from '@/components/SupabaseProvider'
+import { useQuery } from '@tanstack/react-query'
+import { cx } from '../../styled-system/css'
 
 type Props = {
   avatarUrl?: string | null
@@ -22,9 +24,28 @@ function getBlob(file: File): Promise<string> {
 
 export default function useAvatar({ avatarUrl, size }: Props) {
   const { supabase } = useSupabase()
-  const [imageSrc, setImageSrc] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [localSrc, setLocalSrc] = useState<string | null>(null)
+
+  const { data: serverSrc } = useQuery(
+    ['userProfile', avatarUrl],
+    async () => {
+      if (!avatarUrl) {
+        return
+      }
+      const response = await supabase.storage
+        .from('avatars')
+        .download(avatarUrl)
+      const blob = response.data!
+      const url = URL.createObjectURL(blob)
+      return url
+    },
+    {
+      // only run the query if avatar exists!
+      enabled: !!avatarUrl,
+    },
+  )
 
   const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
     setIsLoading(true)
@@ -39,7 +60,7 @@ export default function useAvatar({ avatarUrl, size }: Props) {
         type: 'image/jpeg',
       })
       const blob = await getBlob(file)
-      setImageSrc(blob)
+      setLocalSrc(blob)
       setImageFile(file)
     } catch (e) {
       console.error('Error updating avatar', e)
@@ -48,31 +69,20 @@ export default function useAvatar({ avatarUrl, size }: Props) {
     }
   }
 
-  useEffect(() => {
-    if (avatarUrl) {
-      supabase.storage
-        .from('avatars')
-        .download(avatarUrl)
-        .then(response => {
-          const blob = response.data!
-          const url = URL.createObjectURL(blob)
-          setImageSrc(url)
-        })
-        .catch(e => {
-          console.error('Something went wrong', e)
-        })
-    }
-    // Note: intentionally not adding supabase to deps (infinite loop)
-  }, [avatarUrl])
+  const imageSrc = localSrc || serverSrc
 
   return {
-    renderAvatar: () => (
-      <div>
+    AvatarPreview: ({
+      className,
+    }: {
+      className?: string
+    }): React.ReactElement => (
+      <>
         {imageSrc ? (
           <Image
             src={imageSrc}
             alt="Avatar"
-            className="avatar image"
+            className={cx(className)}
             width={size}
             height={size}
           />
@@ -89,10 +99,10 @@ export default function useAvatar({ avatarUrl, size }: Props) {
             No image
           </div>
         )}
-      </div>
+      </>
     ),
     imageSrc,
-    setImageSrc,
+    setLocalSrc,
     imageFile,
     handleAvatarChange,
     isLoading,

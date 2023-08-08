@@ -1,5 +1,5 @@
-import Image from 'next/image'
 import { css, cva, cx } from '../../../styled-system/css'
+import Loading from '@/components/common/Loading'
 
 export const button = cva({
   base: {
@@ -39,6 +39,7 @@ export default function Button({
   isLoading,
   fullWidth,
   className,
+  disabled,
   ...rest
 }: Props) {
   return (
@@ -48,21 +49,10 @@ export default function Button({
         fullWidth ? css({ width: '100%' }) : '',
         className ?? '',
       )}
+      disabled={isLoading || disabled}
       {...rest}
     >
-      {isLoading ? (
-        <Image
-          className={css({
-            animation: 'spin 3s linear infinite',
-          })}
-          src="/spinner.svg"
-          width={10}
-          height={10}
-          alt="Loading"
-        />
-      ) : (
-        children
-      )}
+      {isLoading ? <Loading height={10} width={10} /> : children}
     </button>
   )
 }

@@ -45,7 +45,7 @@ export default function Menu() {
                       await supabase.auth.signOut()
                       onClose()
                     }}
-                    href="/login"
+                    href="#"
                   >
                     Sign Out
                   </Link>

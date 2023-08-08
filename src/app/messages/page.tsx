@@ -50,16 +50,14 @@ export default async function MessagesPage() {
 
   return (
     <>
-      <h2 className={css({ borderBottom: '1px solid gray', fontSize: 'xl' })}>
-        Messages
-      </h2>
       <ul>
         {Array.from(conversations?.values() ?? []).map(conversation => (
-          <Contact
-            key={conversation.chatId}
-            chatId={conversation.chatId}
-            contact={conversation.contact}
-          />
+          <li key={conversation.chatId}>
+            <Contact
+              chatId={conversation.chatId}
+              contact={conversation.contact}
+            />
+          </li>
         ))}
       </ul>
       {/*<h2 className={css({ borderBottom: '1px solid gray', fontSize: 'xl' })}>*/}

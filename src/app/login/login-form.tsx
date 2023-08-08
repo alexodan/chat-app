@@ -82,15 +82,14 @@ export default function LoginForm() {
                 }}
               />
             </div>
-            {errorMessage || mutation.isError ? (
-              <ErrorMessage>
-                {errorMessage
-                  ? errorMessage
-                  : mutation.error instanceof AuthError
+            <ErrorMessage>{errorMessage}</ErrorMessage>
+            <ErrorMessage>
+              {mutation.isError
+                ? mutation.error instanceof AuthError
                   ? mutation.error.message
-                  : 'An error occurred. Try again later.'}
-              </ErrorMessage>
-            ) : null}
+                  : 'An error occurred. Try again later.'
+                : ''}
+            </ErrorMessage>
             <div className={css({ mt: 3 })}>
               <Button
                 isLoading={mutation.isLoading}
@@ -137,7 +136,7 @@ export default function LoginForm() {
             view="magic_link"
             showLinks={false}
             providers={[]}
-            redirectTo="http://localhost:3000/auth/callback"
+            redirectTo={`${window.location.origin}/auth/callback`}
             appearance={{
               extend: false,
               className: {
