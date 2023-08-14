@@ -9,6 +9,21 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      chats: {
+        Row: {
+          chat_id: string
+          users: string[]
+        }
+        Insert: {
+          chat_id?: string
+          users: string[]
+        }
+        Update: {
+          chat_id?: string
+          users?: string[]
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           contact_id: number
@@ -44,28 +59,32 @@ export interface Database {
         Row: {
           chat_id: string
           content: string | null
-          from_user: string
           id: number
           timestamp: string | null
-          to_user: string
+          user_id: string
         }
         Insert: {
-          chat_id?: string
+          chat_id: string
           content?: string | null
-          from_user: string
           id?: number
           timestamp?: string | null
-          to_user?: string
+          user_id: string
         }
         Update: {
           chat_id?: string
           content?: string | null
-          from_user?: string
           id?: number
           timestamp?: string | null
-          to_user?: string
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_chat_id_fkey"
+            columns: ["chat_id"]
+            referencedRelation: "chats"
+            referencedColumns: ["chat_id"]
+          }
+        ]
       }
       profiles: {
         Row: {
