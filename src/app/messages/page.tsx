@@ -2,72 +2,47 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { redirect } from 'next/navigation'
 import { Database } from '@/types/supabase'
 import { cookies } from 'next/headers'
-import Contact from '@/components/Contact'
-import { css } from '../../../styled-system/css'
-import { Message, Profile } from '@/components/Conversation'
+import MessagePreview from '@/components/MessagePreview'
+import Button from '@/components/common/Button'
+import Link from 'next/link'
 
 export default async function MessagesPage() {
   const supabase = createServerComponentClient<Database>({ cookies })
 
-  const { data } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
-  if (!data.session) {
+  if (!session) {
     return redirect('/login')
   }
 
   const { data: contacts } = await supabase.from('profiles').select('*')
 
-  const { data: userMessages } = await supabase
-    .from('messages')
-    .select('id, chat_id, from_user, to_user, content, timestamp')
-    .or(
-      `from_user.eq.${data.session.user.id}, to_user.eq.${data.session.user.id}`,
-    )
-
-  const conversations = userMessages?.reduce(
-    (aggregation, message) => {
-      const chatId = message.chat_id
-      const contact = contacts?.find(
-        contact =>
-          contact.id === message.from_user || contact.id === message.to_user,
-      )
-      const messages = aggregation.get(chatId)?.messages ?? []
-      return aggregation.set(chatId, {
-        chatId,
-        contact: contact!,
-        messages: [...messages, message],
-      })
-    },
-    new Map<
-      string,
-      {
-        chatId: string
-        contact: Profile
-        messages: Message[]
-      }
-    >(),
-  )
+  const { data: chats } = await supabase.from('chats').select('*')
 
   return (
     <>
       <ul>
-        {Array.from(conversations?.values() ?? []).map(conversation => (
-          <li key={conversation.chatId}>
-            <Contact
-              chatId={conversation.chatId}
-              contact={conversation.contact}
-            />
-          </li>
-        ))}
+        {chats?.map(chat => {
+          // NOTE: Group chats (for later as a bonus)
+          const userId = chat.users
+            .filter(userId => userId !== session.user.id)
+            .at(0)
+          const userInChat = contacts
+            ?.filter(contact => contact.id === userId)
+            .at(0)!
+
+          return (
+            <li key={chat.chat_id}>
+              <MessagePreview chatId={chat.chat_id} contact={userInChat} />
+            </li>
+          )
+        })}
       </ul>
-      {/*<h2 className={css({ borderBottom: '1px solid gray', fontSize: 'xl' })}>*/}
-      {/*  Contacts*/}
-      {/*</h2>*/}
-      {/*<ul>*/}
-      {/*  {displayContacts.map(contact => (*/}
-      {/*    <Contact key={contact.id} contact={contact} />*/}
-      {/*  ))}*/}
-      {/*</ul>*/}
+      <Button>
+        <Link href="/messages/new">Start a new conversation</Link>
+      </Button>
     </>
   )
 }

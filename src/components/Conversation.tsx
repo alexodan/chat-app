@@ -1,158 +1,73 @@
 'use client'
 
 import { useSupabase } from '@/components/SupabaseProvider'
-import { MouseEvent, useEffect, useState } from 'react'
+import { MouseEvent, useState } from 'react'
 import { css } from '../../styled-system/css'
 import Input from '@/components/common/Input'
-import Message from './Message'
-import { Database } from '@/types/supabase'
 import Button from '@/components/common/Button'
-import { usePathname } from 'next/navigation'
-
-// TODO: move this types
-export type Message = Database['public']['Tables']['messages']['Row']
-export type Profile = Database['public']['Tables']['profiles']['Row']
-
-type MessageDisplay = {
-  id: number
-  content: string | null
-  timestamp: string | null
-  isUserMessage: boolean
-  username: string | null
-}
-
-type Props = {
-  userMessages: Message[]
-  userRecipient: Profile
-  userProfile: Profile
-}
+import Message from './Message'
+import { useConversation } from './useConversation'
+import { Message as MessageModel, NewMessage, Profile } from '@/types/models'
 
 export default function Conversation({
-  userMessages,
-  userRecipient,
-  userProfile,
-}: Props) {
-  const { session, supabase } = useSupabase()
-  const path = usePathname()
+  chatId,
+  profiles,
+  messages: messageHistory,
+}: {
+  chatId: string
+  profiles: Profile[]
+  messages: MessageModel[]
+}) {
+  const { session } = useSupabase()
 
-  const chatId = path.split('/').pop()
   const [message, setMessage] = useState('')
-  const [messages, setMessages] = useState<MessageDisplay[]>([])
+
+  const { messages, sendMessage } = useConversation({
+    chatId,
+    messageHistory,
+    usersInConversation: profiles,
+  })
 
   const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     if (!message) return
 
-    const messageToSend = {
-      // TODO: check the chatId not to create multiple chats for the same users
+    const messageToSend: NewMessage = {
       chat_id: chatId,
-      from_user: userProfile.id,
-      to_user: userRecipient.id,
+      user_id: session?.user.id!,
       content: message,
+      timestamp: new Date().toISOString(),
     }
-    const { error } = await supabase
-      .from('messages')
-      .insert([messageToSend])
-      .single()
+    sendMessage(messageToSend)
 
-    if (error) {
-      console.log('error:', error)
-      // TODO: show an error
-    } else {
-      setMessages([
-        ...messages,
-        {
-          id: 0,
-          content: messageToSend.content,
-          timestamp: Date.now().toString(),
-          isUserMessage: true,
-          username: userProfile.username,
-        },
-      ])
-    }
+    // if (mutation.isError) {
+    //   console.log('error:', mutation.error)
+    // }
 
     setMessage('')
   }
 
-  // TODO: extract this outside
-  useEffect(() => {
-    const previousMessages = userMessages
-      .filter(message => {
-        return (
-          (message.from_user == session?.user.id &&
-            message.to_user == userRecipient.id) ||
-          (message.from_user == userRecipient.id &&
-            message.to_user == session?.user.id)
-        )
-      })
-      .map(message => {
-        // TODO: data normalization (new types? service folder/file?)
-        return {
-          id: message.id,
-          content: message.content,
-          timestamp: message.timestamp,
-          isUserMessage: message.from_user == session?.user.id,
-          username:
-            message.from_user == session?.user.id
-              ? userProfile?.username
-              : userRecipient?.username,
-        }
-      })
-    setMessages(previousMessages)
-  }, [session?.user, userMessages, userRecipient, userProfile])
-
-  useEffect(() => {
-    const channel = supabase
-      .channel('messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          // TODO: isn't this a security issue?
-          filter: `to_user=eq.${userProfile.id}`,
-        },
-        payload => {
-          console.log('Message from channel:', payload.new)
-          const newMessage = payload.new
-          setMessages((messages: MessageDisplay[]) => {
-            return [
-              ...messages,
-              {
-                id: newMessage.id,
-                content: newMessage.content,
-                timestamp: newMessage.timestamp,
-                isUserMessage: newMessage.from_user == session?.user.id,
-                username:
-                  newMessage.from_user == session?.user.id
-                    ? userProfile?.username
-                    : userRecipient?.username,
-              },
-            ]
-          })
-        },
-      )
-      .subscribe()
-    return () => {
-      channel.unsubscribe()
-    }
-  }, [supabase])
-
   return (
-    <div className={css({ border: '1px solid red' })}>
-      <ul>
-        {messages.map(message => {
-          return (
+    <div
+      className={css({
+        display: 'flex',
+        flexDir: 'column',
+        flexGrow: 1,
+        p: 2,
+      })}
+    >
+      <ul className={css({ flexGrow: 1 })}>
+        {messages.map(message => (
+          <li key={message.id} className={css({ mb: 2 })}>
             <Message
-              key={message.id}
               isOwnMessage={message.isUserMessage}
               username={message.username}
               timestamp={message.timestamp}
               content={message.content}
+              avatarUrl={message.avatarUrl}
             />
-          )
-        })}
+          </li>
+        ))}
       </ul>
       <div className={css({ display: 'flex' })}>
         <Input
