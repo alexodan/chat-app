@@ -20,7 +20,7 @@ export default function MessagePreview({ chatId, contact }: Props) {
     <Link
       href={`/messages/${chatId}`}
       className={css({
-        borderBottom: '1px solid gray',
+        borderBottom: '1px solid black',
         display: 'flex',
         padding: 4,
       })}

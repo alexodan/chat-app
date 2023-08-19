@@ -5,6 +5,8 @@ import { cookies } from 'next/headers'
 import MessagePreview from '@/components/MessagePreview'
 import Button from '@/components/common/Button'
 import Link from 'next/link'
+import { css } from '../../../styled-system/css'
+import Image from 'next/image'
 
 export default async function MessagesPage() {
   const supabase = createServerComponentClient<Database>({ cookies })
@@ -40,8 +42,18 @@ export default async function MessagesPage() {
           )
         })}
       </ul>
-      <Button>
-        <Link href="/messages/new">Start a new conversation</Link>
+      <Button
+        fullWidth={false}
+        className={css({ position: 'absolute', bottom: '4', right: '4' })}
+      >
+        <Link href="/messages/new">
+          <Image
+            src="/message.svg"
+            alt="New conversation"
+            height={30}
+            width={30}
+          />
+        </Link>
       </Button>
     </>
   )
