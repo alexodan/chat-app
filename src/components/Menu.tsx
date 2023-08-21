@@ -17,11 +17,10 @@ import Image from 'next/image'
 
 export default function Menu() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { session } = useSupabase()
-  console.log('re-render menu')
+  const { session, supabase } = useSupabase()
 
   return (
-    <div className={css({ padding: 2, bgColor: 'teal.600' })}>
+    <div className={css({ padding: 2 })}>
       <Button onClick={onOpen}>
         <Image src="/burger-menu.svg" width={20} height={20} alt="menu" />
       </Button>
@@ -41,7 +40,13 @@ export default function Menu() {
               </li>
               {session && (
                 <li>
-                  <Link onClick={onClose} href="/auth/signout">
+                  <Link
+                    onClick={async () => {
+                      await supabase.auth.signOut()
+                      onClose()
+                    }}
+                    href="#"
+                  >
                     Sign Out
                   </Link>
                 </li>

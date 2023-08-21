@@ -1,5 +1,5 @@
 // Compress image to 248x248 using canvas
-export default async function compressImage(file: Blob): Promise<Blob> {
+export async function compressImage(file: Blob): Promise<Blob> {
   if (!/image/i.test(file.type)) {
     alert('File ' + file.name + ' is not an image.')
     throw new Error('File ' + file.name + ' is not an image.')
@@ -12,7 +12,6 @@ export default async function compressImage(file: Blob): Promise<Blob> {
   canvas.height = 248
 
   const context = canvas.getContext('2d')
-  // TODO: resize so shape iss not deformed maybe bonus
 
   const MIME_TYPE = 'image/jpeg'
   const QUALITY = 0.7
