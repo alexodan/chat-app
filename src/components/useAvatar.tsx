@@ -7,7 +7,6 @@ import { cx } from '../../styled-system/css'
 
 type Props = {
   avatarUrl?: string | null
-  size: number
 }
 
 function getBlob(file: File): Promise<string> {
@@ -22,7 +21,7 @@ function getBlob(file: File): Promise<string> {
   )
 }
 
-export default function useAvatar({ avatarUrl, size }: Props) {
+export default function useAvatar({ avatarUrl }: Props) {
   const { supabase } = useSupabase()
   const [isLoading, setIsLoading] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -74,8 +73,10 @@ export default function useAvatar({ avatarUrl, size }: Props) {
   return {
     AvatarPreview: ({
       className,
+      size,
     }: {
       className?: string
+      size: number
     }): React.ReactElement => (
       <>
         {imageSrc ? (

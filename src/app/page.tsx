@@ -1,7 +1,14 @@
-import { css } from '../../styled-system/css'
 import Link from 'next/link'
+import { css } from '../../styled-system/css'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Database } from '@/types/supabase'
+import { cookies } from 'next/headers'
 
 export default async function LandingPage() {
+  const supabase = createServerComponentClient<Database>({ cookies })
+  const { data } = await supabase.auth.getSession()
+  console.log('DATA: ', data)
+
   return (
     <div
       className={css({
@@ -9,7 +16,7 @@ export default async function LandingPage() {
       })}
     >
       <h1>Landing</h1>
-      <Link href="/login">Login</Link>
+      {!data.session && <Link href="/login">Login</Link>}
     </div>
   )
 }
