@@ -13,7 +13,6 @@ type Props = {
 export default function MessagePreview({ chatId, contact }: Props) {
   const { AvatarPreview } = useAvatar({
     avatarUrl: contact.avatar_url,
-    size: 50,
   })
 
   return (
@@ -25,7 +24,10 @@ export default function MessagePreview({ chatId, contact }: Props) {
         padding: 4,
       })}
     >
-      <AvatarPreview className={css({ borderRadius: '50%', mr: 4 })} />
+      <AvatarPreview
+        className={css({ borderRadius: '50%', mr: 4 })}
+        size={50}
+      />
       <div>
         {contact.full_name} - Chat id: {chatId}
       </div>

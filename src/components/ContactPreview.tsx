@@ -20,7 +20,6 @@ export default function ContactPreview({ contact }: Props) {
 
   const { AvatarPreview } = useAvatar({
     avatarUrl: contact.avatar_url,
-    size: 60,
   })
 
   const handleClick = async () => {
@@ -41,7 +40,10 @@ export default function ContactPreview({ contact }: Props) {
   return (
     // onClick on a div 🤔
     <div className={css({ display: 'flex' })} onClick={handleClick}>
-      <AvatarPreview className={css({ borderRadius: '50%', mr: 4 })} />
+      <AvatarPreview
+        className={css({ borderRadius: '50%', mr: 4 })}
+        size={60}
+      />
       <div>{contact.username}</div>
     </div>
   )

@@ -10,7 +10,7 @@ type Props = {
 }
 
 export default function Message(props: Props) {
-  const { AvatarPreview } = useAvatar({ avatarUrl: props.avatarUrl, size: 60 })
+  const { AvatarPreview } = useAvatar({ avatarUrl: props.avatarUrl })
   return (
     <div
       className={css({
@@ -19,7 +19,7 @@ export default function Message(props: Props) {
       })}
     >
       {props.isOwnMessage ? null : (
-        <AvatarPreview className={css({ borderRadius: '50%' })} />
+        <AvatarPreview className={css({ borderRadius: '50%' })} size={60} />
       )}
       <div
         className={css({
