@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query'
 
 type Props = {
   avatarUrl?: string | null
-  size: number
 }
 
 function getBlob(file: File): Promise<string> {
@@ -21,7 +20,7 @@ function getBlob(file: File): Promise<string> {
   )
 }
 
-export default function useAvatar({ avatarUrl, size }: Props) {
+export default function useAvatar({ avatarUrl }: Props) {
   const { supabase } = useSupabase()
   const [isLoading, setIsLoading] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -71,7 +70,7 @@ export default function useAvatar({ avatarUrl, size }: Props) {
   const imageSrc = localSrc || serverSrc
 
   return {
-    AvatarPreview: () => (
+    AvatarPreview: ({ size }: { size: number }) => (
       <>
         {imageSrc ? (
           <Image

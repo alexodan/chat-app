@@ -33,9 +33,8 @@ export default function AccountForm({
   const [fullName, setFullName] = useState<string | null>(userInfo.full_name)
   const [username, setUsername] = useState<string | null>(userInfo.username)
 
-  const { AvatarPreview, imageFile, handleAvatarChange, imageSrc } = useAvatar({
+  const { AvatarPreview, imageFile, handleAvatarChange } = useAvatar({
     avatarUrl: userInfo.avatar_url,
-    size: 248,
   })
 
   return (
@@ -72,7 +71,7 @@ export default function AccountForm({
       </div>
       <div className={css({ mt: 2 })}>
         <label htmlFor="avatar">Profile picture</label>
-        <AvatarPreview />
+        <AvatarPreview size={248} />
         <Input id="avatar" type="file" onChange={handleAvatarChange} />
         <ErrorMessage>{error}</ErrorMessage>
       </div>
