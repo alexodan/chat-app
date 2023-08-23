@@ -11,15 +11,22 @@ export default async function Message({ params }: Props) {
   })
 
   const { data: profiles } = await supabase.from('profiles').select('*')
+  const { data: chat } = await supabase
+    .from('chats')
+    .select('*')
+    .eq('chat_id', params.id)
+    .single()
   const { data: messages } = await supabase
     .from('messages')
     .select()
     .eq('chat_id', params.id)
 
+  const usersInChat = profiles?.filter(user => chat?.users.includes(user.id))
+
   return (
     <Conversation
       chatId={params.id}
-      profiles={profiles ?? []}
+      users={usersInChat ?? []}
       messages={messages ?? []}
     />
   )

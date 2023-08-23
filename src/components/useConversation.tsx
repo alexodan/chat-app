@@ -36,15 +36,38 @@ export function useConversation({
 }) {
   const { supabase } = useSupabase()
   const { user } = useContext(UserContext)
-  const [messages, setMessages] = useState(
-    messageHistory.map(messageToDisplayMessage(user, usersInConversation)),
-  )
+  const [messages, setMessages] = useState(messageHistory)
 
-  const sendMessageMutation = useMutation(async (message: NewMessage) => {
-    const { error } = await supabase.from('messages').insert([message]).single()
-    if (error) {
-      throw error
-    }
+  const sendMessageMutation = useMutation({
+    mutationKey: ['messages'],
+    mutationFn: async (message: NewMessage) => {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert([message])
+        .select()
+        .single()
+      if (error) {
+        throw error
+      }
+      return data
+    },
+    onMutate: async newMessage => {
+      // Setting messages with a dummy message
+      setMessages(prev => [...prev, { id: 0, ...newMessage }])
+      return { previousMessages: messages }
+    },
+    onError: (error, _, context) => {
+      // Remove optimistic message from the messages list
+      setMessages(context?.previousMessages || [])
+    },
+    onSuccess: messageCreated => {
+      // Replacing dummy message with id 0 with message inserted in DB
+      setMessages(messages =>
+        messages.filter(message =>
+          message.id === 0 ? messageCreated : message,
+        ),
+      )
+    },
   })
 
   useEffect(() => {
@@ -60,10 +83,12 @@ export function useConversation({
         },
         payload => {
           const newMessage = payload.new
-          setMessages(prev => [
-            ...prev,
-            messageToDisplayMessage(user, usersInConversation)(newMessage),
-          ])
+          // Given I'm doing optimistic updates I'm filtering
+          // messages that are not from the user, which can't
+          // be done with supabase filter (library limitations)
+          if (newMessage.user_id !== user?.id) {
+            setMessages(prev => [...prev, newMessage])
+          }
         },
       )
       .subscribe()

@@ -6,16 +6,16 @@ import { css } from '../../styled-system/css'
 import Input from '@/components/common/Input'
 import Button from '@/components/common/Button'
 import Message from './Message'
-import { useConversation } from './useConversation'
+import { messageToDisplayMessage, useConversation } from './useConversation'
 import { Message as MessageModel, NewMessage, Profile } from '@/types/models'
 
 export default function Conversation({
   chatId,
-  profiles,
+  users,
   messages: messageHistory,
 }: {
   chatId: string
-  profiles: Profile[]
+  users: Profile[]
   messages: MessageModel[]
 }) {
   const { session } = useSupabase()
@@ -25,7 +25,7 @@ export default function Conversation({
   const { messages, sendMessage } = useConversation({
     chatId,
     messageHistory,
-    usersInConversation: profiles,
+    usersInConversation: users,
   })
 
   const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
@@ -41,11 +41,13 @@ export default function Conversation({
     sendMessage(messageToSend)
 
     // if (mutation.isError) {
-    //   console.log('error:', mutation.error)
+    //   // TODO: display error next to message?
     // }
 
     setMessage('')
   }
+
+  const uiMessages = messages.map(messageToDisplayMessage(session?.user, users))
 
   return (
     <div
@@ -57,7 +59,7 @@ export default function Conversation({
       })}
     >
       <ul className={css({ flexGrow: 1 })}>
-        {messages.map(message => (
+        {uiMessages.map(message => (
           <li key={message.id} className={css({ mb: 2 })}>
             <Message
               isOwnMessage={message.isUserMessage}
