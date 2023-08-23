@@ -15,5 +15,5 @@ export default async function Register() {
     return redirect('/')
   }
 
-  return <RegisterForm session={session} />
+  return <RegisterForm />
 }

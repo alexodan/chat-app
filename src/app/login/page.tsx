@@ -1,14 +1,20 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import { css } from '../../../styled-system/css'
 import LoginForm from '@/app/login/login-form'
+import { redirect } from 'next/navigation'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Database } from '@/types/supabase'
+import { cookies } from 'next/headers'
 
 export default async function HomePage() {
-  const supabase = createServerComponentClient({ cookies })
+  const supabase = createServerComponentClient<Database>({ cookies })
 
   const {
     data: { session },
   } = await supabase.auth.getSession()
+
+  if (session) {
+    redirect('/messages')
+  }
 
   return (
     <div
@@ -31,7 +37,7 @@ export default async function HomePage() {
           <p className={css({ fontSize: 'sm', mb: 2 })}>Start messaging</p>
         </div>
         <div>
-          <LoginForm session={session} />
+          <LoginForm />
         </div>
       </div>
     </div>

@@ -9,6 +9,37 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      contacts: {
+        Row: {
+          contact_id: number
+          contact_user_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          contact_id?: number
+          contact_user_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          contact_id?: number
+          contact_user_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_contact_user_id_fkey"
+            columns: ["contact_user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

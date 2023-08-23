@@ -2,19 +2,45 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import {
-  Session,
-  createClientComponentClient,
-} from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/supabase'
 import { redirect } from 'next/navigation'
 import Button from '@/components/common/Button'
 import { css } from '../../../styled-system/css'
 import Input from '@/components/common/Input'
 import ErrorMessage from '@/components/common/ErrorMessage'
+import { useSupabase } from '@/components/SupabaseProvider'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { useMutation } from '@tanstack/react-query'
 
-export default function AccountForm({ session }: { session: Session | null }) {
-  const supabase = createClientComponentClient<Database>()
+function useSignUp() {
+  const { supabase } = useSupabase()
+
+  async function signUp({
+    email,
+    username,
+    password,
+  }: {
+    email: string
+    username: string
+    password: string
+  }) {
+    return supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+  }
+
+  return useMutation(signUp)
+}
+
+export default function RegisterForm() {
+  const { session } = useSupabase()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -22,6 +48,8 @@ export default function AccountForm({ session }: { session: Session | null }) {
     confirmPassword: '',
   })
   const [errorMessage, setErrorMessage] = useState<string>()
+  const { mutateAsync, isLoading } = useSignUp()
+
   const { email, username, password, confirmPassword } = formData
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,25 +60,23 @@ export default function AccountForm({ session }: { session: Session | null }) {
     e.preventDefault()
     setErrorMessage('')
     if (password !== confirmPassword) {
-      alert("Passwords don't match")
+      setErrorMessage("Passwords don't match")
     } else {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username,
-          },
-        },
-      })
+      const { error } = await mutateAsync({ email, username, password })
       if (error) {
         setErrorMessage(error.message)
+      } else {
+        toast.success('Account created successfully, check your email inbox!', {
+          position: 'top-center',
+          autoClose: 3000,
+          closeOnClick: true,
+        })
       }
     }
   }
 
   if (session) {
-    return redirect('/messages')
+    redirect('/messages')
   }
 
   return (
@@ -66,13 +92,14 @@ export default function AccountForm({ session }: { session: Session | null }) {
         m: '0 auto',
       })}
     >
+      <ToastContainer />
       <h2 className={css({ fontSize: '2xl', mb: 2 })}>Register</h2>
       <form onSubmit={handleSubmit} className={css({ width: '100%' })}>
         <label>
           Username
           <Input
             fullWidth
-            userCss={css({ mb: 2 })}
+            className={css({ mb: 2 })}
             type="text"
             name="username"
             value={username}
@@ -83,7 +110,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
           Email
           <Input
             fullWidth
-            userCss={css({ mb: 2 })}
+            className={css({ mb: 2 })}
             type="email"
             name="email"
             value={email}
@@ -94,7 +121,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
           Password
           <Input
             fullWidth
-            userCss={css({ mb: 2 })}
+            className={css({ mb: 2 })}
             type="password"
             name="password"
             value={password}
@@ -105,7 +132,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
           Confirm Password
           <Input
             fullWidth
-            userCss={css({ mb: 2 })}
+            className={css({ mb: 2 })}
             type="password"
             name="confirmPassword"
             value={confirmPassword}
@@ -113,7 +140,12 @@ export default function AccountForm({ session }: { session: Session | null }) {
           />
         </label>
         <ErrorMessage>{errorMessage}</ErrorMessage>
-        <Button userCss={css({ width: '100%', my: 4 })} size="md" type="submit">
+        <Button
+          className={css({ width: '100%', my: 4 })}
+          size="md"
+          type="submit"
+          isLoading={isLoading}
+        >
           Register
         </Button>
       </form>

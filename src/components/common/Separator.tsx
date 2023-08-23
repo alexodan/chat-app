@@ -1,10 +1,14 @@
 import { css, cx } from '../../../styled-system/css'
 
-export default function Separator(props: { text: string; userCss?: string }) {
+type Props = {
+  text: string
+} & React.HTMLAttributes<HTMLDivElement>
+
+export default function Separator(props: Props) {
   return (
     <div
       className={cx(
-        props.userCss,
+        props.className,
         css({ display: 'flex', alignItems: 'center' }),
       )}
     >

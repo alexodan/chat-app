@@ -1,4 +1,5 @@
 import { css, cva, cx } from '../../../styled-system/css'
+import Loading from '@/components/common/Loading'
 
 export const button = cva({
   base: {
@@ -27,16 +28,18 @@ export const button = cva({
 type Props = {
   size?: 'sm' | 'md' | 'lg'
   visual?: 'solid' | 'outline'
+  isLoading?: boolean
   fullWidth?: boolean
-  userCss?: string
 } & React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export default function Button({
   children,
   size,
   visual,
+  isLoading,
   fullWidth,
-  userCss,
+  className,
+  disabled,
   ...rest
 }: Props) {
   return (
@@ -44,11 +47,12 @@ export default function Button({
       className={cx(
         button({ visual, size }),
         fullWidth ? css({ width: '100%' }) : '',
-        userCss ?? '',
+        className ?? '',
       )}
+      disabled={isLoading || disabled}
       {...rest}
     >
-      {children}
+      {isLoading ? <Loading height={10} width={10} /> : children}
     </button>
   )
 }
