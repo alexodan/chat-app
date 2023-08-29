@@ -100,6 +100,7 @@ export default function RegisterForm() {
           <Input
             label="Email"
             aria-label="Email"
+            required
             fullWidth
             className={css({ mb: 2 })}
             type="text"
@@ -113,6 +114,7 @@ export default function RegisterForm() {
           <Input
             label="Email"
             aria-label="Email"
+            required
             fullWidth
             className={css({ mb: 2 })}
             type="email"
@@ -126,6 +128,7 @@ export default function RegisterForm() {
           <Input
             label="Password"
             aria-label="Password"
+            required
             fullWidth
             className={css({ mb: 2 })}
             type="password"
@@ -139,6 +142,7 @@ export default function RegisterForm() {
           <Input
             label="Confirm password"
             aria-label="Confirm password"
+            required
             fullWidth
             className={css({ mb: 2 })}
             type="password"

@@ -55,7 +55,6 @@ export function useConversation({
       return data
     },
     onMutate: async newMessage => {
-      console.log('new message:', newMessage)
       // Optimistic update 1/3: Show msg instantly locally
       setMessages(prev => [...prev, { ...newMessage, id: 0 }]) // spread first so that id is overwritten
       return { previousMessages: messages }
@@ -64,7 +63,6 @@ export function useConversation({
       // Optimistic update 2/3: Update state with message & error
       // Turns out handling multiple messages with error state is quite tricky,
       // so I'm keeping it simple and allowing one, ignoring the others.
-      console.error('Error:', error)
       const hasErrorMsg = messages.find(m => Boolean(m.error))
       if (!hasErrorMsg) {
         setMessages([
@@ -74,6 +72,7 @@ export function useConversation({
       } else {
         setMessages(context?.previousMessages || [])
       }
+      console.error('Error:', error)
     },
     onSuccess: messageCreated => {
       // Optimistic update 3/3: Replace local message with created in DB and removing those w/error

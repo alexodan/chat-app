@@ -1,11 +1,11 @@
 'use client'
 
-import { css } from '../../styled-system/css'
+import Link from 'next/link'
 import useAvatar from '@/components/useAvatar'
+import { css } from '../../styled-system/css'
 import { useContext } from 'react'
 import { UserContext } from '@/components/UserProvider'
 import { Profile } from '@/types/models'
-import Link from 'next/link'
 import { useContactPreview } from '@/app/domains/contacts/contacts.helpers'
 
 type Props = {

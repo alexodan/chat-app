@@ -31,8 +31,7 @@ function groupMessagesByUser(messages: Message[]) {
   return map
 }
 
-// TODO: move this to contacts.service.ts
-export function useContactsPreview({ userId }: { userId: string }) {
+export function useListContacts({ userId }: { userId: string }) {
   const { supabase } = useSupabase()
 
   const { data: sortedContacts } = useQuery(['contactsPreview'], async () => {
@@ -43,12 +42,13 @@ export function useContactsPreview({ userId }: { userId: string }) {
 
     const messagesGroupedByUser = groupMessagesByUser(messages || [])
 
+    // Sorting by most recent conversation
     return profiles
       ?.filter(profile => profile.id !== userId)
       .map(profile => ({
         ...profile,
         lastMessageTimestamp:
-          messagesGroupedByUser.get(profile.id)?.[0]?.timestamp || '', // todo? this looks fragile
+          messagesGroupedByUser.get(profile.id)?.[0]?.timestamp || '', // TODO: this looks fragile
       }))
       .sort((c1, c2) =>
         c1.lastMessageTimestamp < c2.lastMessageTimestamp ? 1 : -1,
