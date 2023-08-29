@@ -16,6 +16,7 @@ type Props = {
   }
   isLoading: boolean
   error: string | null
+  // eslint-disable-next-line
   onSubmit: (formData: {
     fullName: string | null
     username: string | null
@@ -49,11 +50,20 @@ export default function AccountForm({
     >
       <div className={css({ mt: 2 })}>
         <label htmlFor="email">Email</label>
-        <Input id="email" type="text" value={email} disabled />
+        <Input
+          label="Email"
+          aria-label="Email"
+          id="email"
+          type="text"
+          value={email}
+          disabled
+        />
       </div>
       <div className={css({ mt: 2 })}>
         <label htmlFor="fullName">Full Name</label>
         <Input
+          label="Full name"
+          aria-label="Full name"
           id="fullName"
           type="text"
           value={fullName ?? ''}
@@ -63,6 +73,8 @@ export default function AccountForm({
       <div className={css({ mt: 2 })}>
         <label htmlFor="username">Username</label>
         <Input
+          label="Username"
+          aria-label="Username"
           id="username"
           type="text"
           value={username ?? ''}
@@ -72,7 +84,13 @@ export default function AccountForm({
       <div className={css({ mt: 2 })}>
         <label htmlFor="avatar">Profile picture</label>
         <AvatarPreview size={248} />
-        <Input id="avatar" type="file" onChange={handleAvatarChange} />
+        <Input
+          label="Image avatar"
+          aria-label="Image avatar"
+          id="avatar"
+          type="file"
+          onChange={handleAvatarChange}
+        />
         <ErrorMessage>{error}</ErrorMessage>
       </div>
 

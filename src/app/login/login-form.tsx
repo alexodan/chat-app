@@ -55,6 +55,8 @@ export default function LoginForm() {
             <div>
               <label htmlFor="email-login">Email</label>
               <Input
+                label="Email"
+                aria-label="Email"
                 fullWidth
                 required
                 type="email"
@@ -70,6 +72,8 @@ export default function LoginForm() {
             <div>
               <label htmlFor="password">Password</label>
               <Input
+                label="Password"
+                aria-label="Password"
                 fullWidth
                 required
                 placeholder="Password"

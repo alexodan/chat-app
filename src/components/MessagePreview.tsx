@@ -29,7 +29,7 @@ export default function MessagePreview({ chatId, contact }: Props) {
         size={50}
       />
       <div>
-        {contact.full_name} - Chat id: {chatId}
+        {contact.username} - Chat id: {chatId}
       </div>
     </Link>
   )

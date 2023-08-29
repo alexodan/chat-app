@@ -78,29 +78,13 @@ export default function useAvatar({ avatarUrl }: Props) {
       className?: string
       size: number
     }) => (
-      <>
-        {imageSrc ? (
-          <Image
-            src={imageSrc}
-            alt="Avatar"
-            className={cx(className)}
-            width={size}
-            height={size}
-          />
-        ) : (
-          <div
-            style={{
-              height: size,
-              width: size,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            No image
-          </div>
-        )}
-      </>
+      <Image
+        src={imageSrc || '/no-avatar.png'}
+        alt="Avatar"
+        className={cx(className)}
+        width={size}
+        height={size}
+      />
     ),
     imageSrc,
     setLocalSrc,
