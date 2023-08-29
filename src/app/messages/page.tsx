@@ -6,6 +6,7 @@ import { Database } from '@/types/supabase'
 import { cookies } from 'next/headers'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { css } from '../../../styled-system/css'
+import { useGetProfiles } from '../domains/profiles/profiles.helpers'
 
 export default async function MessagesPage() {
   const supabase = createServerComponentClient<Database>({ cookies })
@@ -14,7 +15,7 @@ export default async function MessagesPage() {
     data: { session },
   } = await supabase.auth.getSession()
 
-  const { data: contacts } = await supabase.from('profiles').select('*')
+  const { profiles: contacts } = useGetProfiles()
 
   const { data: chats } = await supabase
     .from('chats')
@@ -31,8 +32,8 @@ export default async function MessagesPage() {
           // Note: For now I'm only handling one on one chats.
           const contactInChat = contacts?.find(contact => contact.id === userId)
 
-          // Note: (BUG) Both users in chat had the same id
           if (!contactInChat) {
+            // (BUG) If this happens is that both users in chat had the same id
             return null
           }
 

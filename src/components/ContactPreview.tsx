@@ -25,7 +25,7 @@ export default function ContactPreview({ contact }: Props) {
   })
 
   const handleClick = async () => {
-    if (user?.id) {
+    if (user?.id && user.id !== contact.id) {
       createChatWithContact({ userId: user.id, contactId: contact.id })
     }
   }

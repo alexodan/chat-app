@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Message, NewMessage, Profile } from '@/types/models'
@@ -115,5 +115,22 @@ export function useConversation({
     messages,
     sendMessage: mutate,
     errorSending: error,
+  }
+}
+
+export function useGetMessagesByChatId(chatId: string) {
+  const { supabase } = useSupabase()
+
+  const { data, isLoading } = useQuery(['messagesByChatId'], async () => {
+    const { data } = await supabase
+      .from('messages')
+      .select()
+      .eq('chat_id', chatId)
+    return data
+  })
+
+  return {
+    messages: data ?? [],
+    isLoading,
   }
 }

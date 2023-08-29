@@ -1,3 +1,6 @@
+import { useGetChat } from '@/app/domains/chats/chats.helpers'
+import { useGetMessagesByChatId } from '@/app/domains/messages/messages.helpers'
+import { useGetProfiles } from '@/app/domains/profiles/profiles.helpers'
 import Conversation from '@/components/Conversation'
 import { Database } from '@/types/supabase'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
@@ -16,16 +19,11 @@ export default async function MessagesPage({ params }: Props) {
     redirect('/login')
   }
 
-  const { data: profiles } = await supabase.from('profiles').select('*')
-  const { data: chat } = await supabase
-    .from('chats')
-    .select('*')
-    .eq('chat_id', params.id)
-    .single()
-  const { data: messages } = await supabase
-    .from('messages')
-    .select()
-    .eq('chat_id', params.id)
+  const { profiles } = useGetProfiles()
+
+  const { chat } = useGetChat(params.id)
+
+  const { messages } = useGetMessagesByChatId(params.id)
 
   const usersInChat = profiles?.filter(user => chat?.users.includes(user.id))
 
@@ -33,7 +31,7 @@ export default async function MessagesPage({ params }: Props) {
     <Conversation
       chatId={params.id}
       users={usersInChat ?? []}
-      messages={messages ?? []}
+      messages={messages}
     />
   )
 }
