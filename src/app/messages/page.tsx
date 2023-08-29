@@ -2,7 +2,6 @@ import MessagePreview from '@/components/MessagePreview'
 import Button from '@/components/common/Button'
 import Link from 'next/link'
 import Image from 'next/image'
-import { redirect } from 'next/navigation'
 import { Database } from '@/types/supabase'
 import { cookies } from 'next/headers'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
@@ -15,29 +14,27 @@ export default async function MessagesPage() {
     data: { session },
   } = await supabase.auth.getSession()
 
-  if (!session) {
-    return redirect('/login')
-  }
-
   const { data: contacts } = await supabase.from('profiles').select('*')
 
-  // Note: I think there is no way to query Supabase for all chats that a user is in since users is an array type.
-  const { data: chats } = await supabase.from('chats').select('chat_id, users')
-  // So I have to filter manually.
-  const chatsForUser =
-    chats?.filter(chat => chat.users.includes(session.user.id)) || []
+  const { data: chats } = await supabase
+    .from('chats')
+    .select('chat_id, users')
+    .contains('users', [session?.user.id])
 
   return (
     <>
       <ul>
-        {chatsForUser.map(chat => {
+        {chats?.map(chat => {
           const userId = chat.users
-            .filter(userId => userId !== session.user.id)
+            .filter(userId => userId !== session?.user.id)
             .at(0)
           // Note: For now I'm only handling one on one chats.
-          const contactInChat = contacts
-            ?.filter(contact => contact.id === userId)
-            .at(0)!
+          const contactInChat = contacts?.find(contact => contact.id === userId)
+
+          // Note: (BUG) Both users in chat had the same id
+          if (!contactInChat) {
+            return null
+          }
 
           return (
             <li key={chat.chat_id}>

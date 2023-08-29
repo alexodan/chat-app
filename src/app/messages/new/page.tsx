@@ -1,27 +1,26 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { redirect } from 'next/navigation'
-import { Database } from '@/types/supabase'
-import { cookies } from 'next/headers'
+'use client'
+
 import { css } from '../../../../styled-system/css'
 import ContactPreview from '@/components/ContactPreview'
+import { redirect } from 'next/navigation'
+import { useContactsPreview } from '@/app/domains/contacts/contacts.helpers'
+import { useSupabase } from '@/components/SupabaseProvider'
 
-export default async function NewMessagePage() {
-  const supabase = createServerComponentClient<Database>({ cookies })
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+export default function NewMessagePage() {
+  const { session } = useSupabase()
 
   if (!session) {
-    return redirect('/login')
+    redirect('/login')
   }
 
-  const { data: contacts } = await supabase.from('profiles').select('*')
+  const { sortedContacts } = useContactsPreview({
+    userId: session.user.id,
+  })
 
   return (
     <>
       <ul>
-        {contacts?.map(contact => (
+        {sortedContacts.map(contact => (
           <li
             key={contact.id}
             className={css({

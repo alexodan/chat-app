@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
-import { useSupabase } from './SupabaseProvider'
 import { useContext, useEffect, useState } from 'react'
-import { UserContext } from './UserProvider'
 import { User } from '@supabase/supabase-js'
 import { Message, NewMessage, Profile } from '@/types/models'
+import { useSupabase } from '@/components/SupabaseProvider'
+import { UserContext } from '@/components/UserProvider'
 
 type MessageDisplay = {
   id: number
@@ -12,12 +12,13 @@ type MessageDisplay = {
   isUserMessage: boolean
   username: string
   avatarUrl: string
+  error?: boolean
 }
 
 export const messageToDisplayMessage =
   (user: User | undefined, profiles: Profile[]) =>
   (m: Message): MessageDisplay => ({
-    id: m.id,
+    ...m,
     content: m.content!,
     timestamp: m.timestamp!,
     isUserMessage: m.user_id == user?.id,
@@ -36,11 +37,13 @@ export function useConversation({
 }) {
   const { supabase } = useSupabase()
   const { user } = useContext(UserContext)
-  const [messages, setMessages] = useState(messageHistory)
+  const [messages, setMessages] =
+    useState<Array<Message & { error?: boolean }>>(messageHistory)
 
-  const sendMessageMutation = useMutation({
+  const { mutate, error } = useMutation({
     mutationKey: ['messages'],
     mutationFn: async (message: NewMessage) => {
+      // throw new Error('fake error to test mutation')
       const { data, error } = await supabase
         .from('messages')
         .insert([message])
@@ -52,20 +55,32 @@ export function useConversation({
       return data
     },
     onMutate: async newMessage => {
-      // Setting messages with a dummy message
-      setMessages(prev => [...prev, { id: 0, ...newMessage }])
+      console.log('new message:', newMessage)
+      // Optimistic update 1/3: Show msg instantly locally
+      setMessages(prev => [...prev, { ...newMessage, id: 0 }]) // spread first so that id is overwritten
       return { previousMessages: messages }
     },
-    onError: (error, _, context) => {
-      // Remove optimistic message from the messages list
-      setMessages(context?.previousMessages || [])
+    onError: (error, failedMessage, context) => {
+      // Optimistic update 2/3: Update state with message & error
+      // Turns out handling multiple messages with error state is quite tricky,
+      // so I'm keeping it simple and allowing one, ignoring the others.
+      console.error('Error:', error)
+      const hasErrorMsg = messages.find(m => Boolean(m.error))
+      if (!hasErrorMsg) {
+        setMessages([
+          ...(context?.previousMessages || []),
+          { ...failedMessage, error: true, id: 0 },
+        ])
+      } else {
+        setMessages(context?.previousMessages || [])
+      }
     },
     onSuccess: messageCreated => {
-      // Replacing dummy message with id 0 with message inserted in DB
+      // Optimistic update 3/3: Replace local message with created in DB and removing those w/error
       setMessages(messages =>
-        messages.filter(message =>
-          message.id === 0 ? messageCreated : message,
-        ),
+        messages
+          .filter(m => !m.error)
+          .map(message => (message.id === 0 ? messageCreated : message)),
       )
     },
   })
@@ -99,6 +114,7 @@ export function useConversation({
 
   return {
     messages,
-    sendMessage: sendMessageMutation.mutate,
+    sendMessage: mutate,
+    errorSending: error,
   }
 }
