@@ -2,17 +2,10 @@
 
 import { css } from '../../../../styled-system/css'
 import ContactPreview from '@/components/ContactPreview'
-import { redirect } from 'next/navigation'
 import { useListContacts } from '@/app/domains/contacts/contacts.helpers'
-import { useSupabase } from '@/components/SupabaseProvider'
+import { WithSessionProps, withSession } from '@/components/hoc/withSession'
 
-export default function NewMessagePage() {
-  const { session } = useSupabase()
-
-  if (!session) {
-    redirect('/login')
-  }
-
+function NewMessagePage({ session }: WithSessionProps) {
   // TODO: does it make sense to have hooks in SSR (tho this has 'use client')
   const { sortedContacts } = useListContacts({
     userId: session.user.id,
@@ -36,3 +29,5 @@ export default function NewMessagePage() {
     </>
   )
 }
+
+export default withSession(NewMessagePage)

@@ -15,7 +15,7 @@ import {
 export default function Conversation({
   chatId,
   users,
-  messages: messageHistory,
+  messages,
 }: {
   chatId: string
   users: Profile[]
@@ -25,10 +25,8 @@ export default function Conversation({
 
   const [message, setMessage] = useState('')
 
-  const { messages, sendMessage } = useConversation({
+  const { sendMessage } = useConversation({
     chatId,
-    messageHistory,
-    usersInConversation: users,
   })
 
   const handleSubmit = async (e: FormEvent) => {
@@ -39,7 +37,7 @@ export default function Conversation({
       chat_id: chatId,
       user_id: session?.user.id!,
       content: message,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().getTime().toString(),
     }
     sendMessage(messageToSend)
     setMessage('')
@@ -50,7 +48,6 @@ export default function Conversation({
   }
 
   const uiMessages = messages.map(messageToDisplayMessage(session?.user, users))
-  console.log('uiMessages', uiMessages)
 
   return (
     <div

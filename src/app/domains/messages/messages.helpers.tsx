@@ -1,9 +1,10 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { useContext, useEffect, useState } from 'react'
+'use client'
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Message, NewMessage, Profile } from '@/types/models'
 import { useSupabase } from '@/components/SupabaseProvider'
-import { UserContext } from '@/components/UserProvider'
 
 type MessageDisplay = {
   id: number
@@ -26,19 +27,9 @@ export const messageToDisplayMessage =
     avatarUrl: profiles.find(p => p.id === m.user_id)?.avatar_url!,
   })
 
-export function useConversation({
-  chatId,
-  messageHistory,
-  usersInConversation,
-}: {
-  chatId: string
-  messageHistory: Message[]
-  usersInConversation: Profile[]
-}) {
+export function useConversation({ chatId }: { chatId: string }) {
+  const queryClient = useQueryClient()
   const { supabase } = useSupabase()
-  const { user } = useContext(UserContext)
-  const [messages, setMessages] =
-    useState<Array<Message & { error?: boolean }>>(messageHistory)
 
   const { mutate, error } = useMutation({
     mutationKey: ['messages'],
@@ -56,31 +47,27 @@ export function useConversation({
     },
     onMutate: async newMessage => {
       // Optimistic update 1/3: Show msg instantly locally
-      setMessages(prev => [...prev, { ...newMessage, id: 0 }]) // spread first so that id is overwritten
-      return { previousMessages: messages }
-    },
-    onError: (error, failedMessage, context) => {
-      // Optimistic update 2/3: Update state with message & error
-      // Turns out handling multiple messages with error state is quite tricky,
-      // so I'm keeping it simple and allowing one, ignoring the others.
-      const hasErrorMsg = messages.find(m => Boolean(m.error))
-      if (!hasErrorMsg) {
-        setMessages([
-          ...(context?.previousMessages || []),
-          { ...failedMessage, error: true, id: 0 },
+      await queryClient.cancelQueries({ queryKey: ['messages'] })
+      // Snapshot the previous value
+      const previousMessages =
+        queryClient.getQueryData<Message[]>(['messages']) || []
+      // Optimistically update to the new value
+      if (previousMessages) {
+        queryClient.setQueryData<Message[]>(['messages'], old => [
+          ...(old || []),
+          { ...newMessage, id: 0 },
         ])
-      } else {
-        setMessages(context?.previousMessages || [])
       }
-      console.error('Error:', error)
+      // Return a context object with the snapshotted value
+      return { previousMessages }
     },
-    onSuccess: messageCreated => {
-      // Optimistic update 3/3: Replace local message with created in DB and removing those w/error
-      setMessages(messages =>
-        messages
-          .filter(m => !m.error)
-          .map(message => (message.id === 0 ? messageCreated : message)),
-      )
+    onError: (_error, _failedMessage, context) => {
+      // Optimistic update 2/3: Update state with message & error
+      queryClient.setQueryData(['messages'], context?.previousMessages)
+    },
+    onSettled: () => {
+      // Always refetch after error or success:
+      queryClient.invalidateQueries({ queryKey: ['messages'] })
     },
   })
 
@@ -95,24 +82,17 @@ export function useConversation({
           table: 'messages',
           filter: `chat_id=eq.${chatId}`,
         },
-        payload => {
-          const newMessage = payload.new
-          // Given I'm doing optimistic updates I'm filtering
-          // messages that are not from the user, which can't
-          // be done with supabase filter (library limitations)
-          if (newMessage.user_id !== user?.id) {
-            setMessages(prev => [...prev, newMessage])
-          }
+        (/* payload */) => {
+          queryClient.invalidateQueries({ queryKey: ['messages'] })
         },
       )
       .subscribe()
     return () => {
       channel.unsubscribe()
     }
-  }, [chatId, supabase, user, usersInConversation])
+  }, [chatId, supabase, queryClient])
 
   return {
-    messages,
     sendMessage: mutate,
     errorSending: error,
   }
@@ -121,12 +101,12 @@ export function useConversation({
 export function useGetMessagesByChatId(chatId: string) {
   const { supabase } = useSupabase()
 
-  const { data, isLoading } = useQuery(['messagesByChatId'], async () => {
+  const { data, isLoading } = useQuery(['messages'], async () => {
     const { data } = await supabase
       .from('messages')
       .select()
       .eq('chat_id', chatId)
-    return data
+    return data || []
   })
 
   return {

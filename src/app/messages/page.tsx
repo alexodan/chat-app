@@ -1,21 +1,15 @@
-import MessagePreview from '@/components/MessagePreview'
+'use client'
+
 import Button from '@/components/common/Button'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Database } from '@/types/supabase'
-import { cookies } from 'next/headers'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { css } from '../../../styled-system/css'
-import { useGetProfiles } from '../domains/profiles/profiles.helpers'
+import MessagePreviewList from '@/components/MessagePreviewList'
+import { WithSessionProps, withSession } from '@/components/hoc/withSession'
+import { useSupabase } from '@/components/SupabaseProvider'
 
-export default async function MessagesPage() {
-  const supabase = createServerComponentClient<Database>({ cookies })
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  const { profiles: contacts } = useGetProfiles()
+async function MessagesPage({ session }: WithSessionProps) {
+  const { supabase } = useSupabase()
 
   const { data: chats } = await supabase
     .from('chats')
@@ -24,26 +18,7 @@ export default async function MessagesPage() {
 
   return (
     <>
-      <ul>
-        {chats?.map(chat => {
-          const userId = chat.users
-            .filter(userId => userId !== session?.user.id)
-            .at(0)
-          // Note: For now I'm only handling one on one chats.
-          const contactInChat = contacts?.find(contact => contact.id === userId)
-
-          if (!contactInChat) {
-            // (BUG) If this happens is that both users in chat had the same id
-            return null
-          }
-
-          return (
-            <li key={chat.chat_id}>
-              <MessagePreview chatId={chat.chat_id} contact={contactInChat} />
-            </li>
-          )
-        })}
-      </ul>
+      <MessagePreviewList chats={chats || []} />
       <Button
         fullWidth={false}
         className={css({ position: 'absolute', bottom: '4', right: '4' })}
@@ -60,3 +35,5 @@ export default async function MessagesPage() {
     </>
   )
 }
+
+export default withSession(MessagesPage)
