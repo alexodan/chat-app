@@ -43,9 +43,9 @@ export default function Conversation({
     setMessage('')
   }
 
-  const handleRetry = (message: NewMessage) => {
-    sendMessage(message)
-  }
+  // const handleRetry = (message: NewMessage) => {
+  //   sendMessage(message)
+  // }
 
   const uiMessages = messages.map(messageToDisplayMessage(session?.user, users))
 
@@ -67,8 +67,8 @@ export default function Conversation({
               timestamp={message.timestamp}
               content={message.content}
               avatarUrl={message.avatarUrl}
-              errorSending={!!message.error}
-              retrySend={handleRetry}
+              // errorSending={!!message.error}
+              // retrySend={handleRetry}
             />
           </li>
         ))}

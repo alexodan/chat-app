@@ -62,7 +62,7 @@ export function useConversation({ chatId }: { chatId: string }) {
       return { previousMessages }
     },
     onError: (_error, _failedMessage, context) => {
-      // Optimistic update 2/3: Update state with message & error
+      // Optimistic update 2/3: Rolling back messages
       queryClient.setQueryData(['messages'], context?.previousMessages)
     },
     onSettled: () => {
@@ -106,6 +106,7 @@ export function useGetMessagesByChatId(chatId: string) {
       .from('messages')
       .select()
       .eq('chat_id', chatId)
+      .order('id')
     return data || []
   })
 
