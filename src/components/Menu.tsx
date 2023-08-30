@@ -33,23 +33,30 @@ export default function Menu() {
           </DrawerHeader>
           <DrawerBody>
             <ul>
-              <li>
-                <Link onClick={onClose} href="/account">
-                  Account
-                </Link>
-              </li>
               {session && (
-                <li>
-                  <Link
-                    onClick={async () => {
-                      await supabase.auth.signOut()
-                      onClose()
-                    }}
-                    href="#"
-                  >
-                    Sign Out
-                  </Link>
-                </li>
+                <>
+                  <li>
+                    <Link onClick={onClose} href="/messages">
+                      Messages
+                    </Link>
+                  </li>
+                  <li>
+                    <Link onClick={onClose} href="/account">
+                      Account
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      onClick={async () => {
+                        await supabase.auth.signOut()
+                        onClose()
+                      }}
+                      href="#"
+                    >
+                      Sign Out
+                    </Link>
+                  </li>
+                </>
               )}
             </ul>
           </DrawerBody>
