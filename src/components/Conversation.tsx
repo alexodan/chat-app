@@ -37,7 +37,7 @@ export default function Conversation({
       chat_id: chatId,
       user_id: session?.user.id!,
       content: message,
-      timestamp: new Date().getTime().toString(),
+      timestamp: new Date().toISOString(),
     }
     sendMessage(messageToSend)
     setMessage('')
