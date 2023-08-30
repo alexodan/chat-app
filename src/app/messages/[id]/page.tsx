@@ -4,7 +4,6 @@ import { useGetChat } from '@/app/domains/chats/chats.helpers'
 import { useGetMessagesByChatId } from '@/app/domains/messages/messages.helpers'
 import { useGetProfiles } from '@/app/domains/profiles/profiles.helpers'
 import Conversation from '@/components/Conversation'
-import { withSession } from '@/components/hoc/withSession'
 
 type Props = { params: { id: string } }
 
@@ -26,4 +25,4 @@ function MessagesPage({ params }: Props) {
   )
 }
 
-export default withSession(MessagesPage)
+export default MessagesPage

@@ -5,11 +5,15 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { css } from '../../../styled-system/css'
 import MessagePreviewList from '@/components/MessagePreviewList'
-import { WithSessionProps, withSession } from '@/components/hoc/withSession'
 import { useSupabase } from '@/components/SupabaseProvider'
+import { redirect } from 'next/navigation'
 
-async function MessagesPage({ session }: WithSessionProps) {
-  const { supabase } = useSupabase()
+async function MessagesPage() {
+  const { session, supabase } = useSupabase()
+
+  if (!session?.user) {
+    redirect('/login')
+  }
 
   const { data: chats } = await supabase
     .from('chats')
@@ -36,4 +40,4 @@ async function MessagesPage({ session }: WithSessionProps) {
   )
 }
 
-export default withSession(MessagesPage)
+export default MessagesPage

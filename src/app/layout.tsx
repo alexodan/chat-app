@@ -1,5 +1,4 @@
 import './global.css'
-import { Inter } from 'next/font/google'
 import Menu from '@/components/Menu'
 import {
   createServerComponentClient,
@@ -12,8 +11,6 @@ import SupabaseListener from '@/components/SupabaseListener'
 import QueryWrapper from '@/components/QueryWrapper'
 import { UserContextProvider } from '@/components/UserProvider'
 import { css } from '../../styled-system/css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Chat App',
