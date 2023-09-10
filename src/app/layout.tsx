@@ -1,17 +1,13 @@
 import './global.css'
-import { Inter } from 'next/font/google'
 import Menu from '@/components/Menu'
-import {
-  createServerComponentClient,
-  SupabaseClient,
-} from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { SupabaseClient } from '@supabase/auth-helpers-nextjs'
 import SupabaseProvider from '@/components/SupabaseProvider'
 import { Database } from '@/types/supabase'
 import SupabaseListener from '@/components/SupabaseListener'
 import QueryWrapper from '@/components/QueryWrapper'
-
-const inter = Inter({ subsets: ['latin'] })
+import { createServerClient } from '@/lib/supabase'
+import { UserContextProvider } from '@/components/UserProvider'
+import { css } from '../../styled-system/css'
 
 export const metadata = {
   title: 'Chat App',
@@ -25,22 +21,35 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = createServerComponentClient<Database>({
-    cookies,
-  })
+  const supabase = createServerClient()
 
   const {
     data: { session },
   } = await supabase.auth.getSession()
 
   return (
-    <html lang="en">
-      <body suppressHydrationWarning={true} className={inter.className}>
+    <html
+      lang="en"
+      className={css({ minH: '100%', display: 'flex', flexDir: 'column' })}
+    >
+      <body
+        suppressHydrationWarning={true}
+        className={css({
+          display: 'flex',
+          flexDir: 'column',
+          flexGrow: 1,
+          bgGradient: 'to-b',
+          gradientFrom: 'teal.800',
+          gradientTo: 'teal.100',
+        })}
+      >
         <SupabaseProvider session={session}>
           <QueryWrapper>
-            <SupabaseListener serverAccessToken={session?.access_token} />
-            <Menu />
-            {children}
+            <UserContextProvider user={session?.user}>
+              <SupabaseListener serverAccessToken={session?.access_token} />
+              <Menu />
+              {children}
+            </UserContextProvider>
           </QueryWrapper>
         </SupabaseProvider>
       </body>

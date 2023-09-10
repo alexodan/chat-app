@@ -7,7 +7,6 @@ import { cookies } from 'next/headers'
 export default async function LandingPage() {
   const supabase = createServerComponentClient<Database>({ cookies })
   const { data } = await supabase.auth.getSession()
-  console.log('DATA: ', data)
 
   return (
     <div

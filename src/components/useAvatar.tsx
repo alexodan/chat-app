@@ -3,6 +3,7 @@ import { ChangeEvent, useState } from 'react'
 import { compressImage } from '@/lib/compressImage'
 import { useSupabase } from '@/components/SupabaseProvider'
 import { useQuery } from '@tanstack/react-query'
+import { cx } from '../../styled-system/css'
 
 type Props = {
   avatarUrl?: string | null
@@ -70,13 +71,19 @@ export default function useAvatar({ avatarUrl }: Props) {
   const imageSrc = localSrc || serverSrc
 
   return {
-    AvatarPreview: ({ size }: { size: number }) => (
+    AvatarPreview: ({
+      className,
+      size,
+    }: {
+      className?: string
+      size: number
+    }): React.ReactElement => (
       <>
         {imageSrc ? (
           <Image
             src={imageSrc}
             alt="Avatar"
-            className="avatar image"
+            className={cx(className)}
             width={size}
             height={size}
           />

@@ -50,6 +50,7 @@ export default function Input({
   return (
     <input
       disabled={disabled}
+      // https://panda-css.com/docs/concepts/writing-styles#merging
       className={cx(
         input({ size, visual, disabled }),
         fullWidth ? css({ width: '100%' }) : '',
