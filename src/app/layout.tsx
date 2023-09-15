@@ -35,7 +35,12 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={css({ minH: '100%', display: 'flex', flexDir: 'column' })}
+      className={css({
+        minH: '100%',
+        display: 'flex',
+        flexDir: 'column',
+        md: { backgroundColor: 'teal.950' },
+      })}
     >
       <body
         suppressHydrationWarning={true}
@@ -46,6 +51,12 @@ export default async function RootLayout({
           bgGradient: 'to-b',
           gradientFrom: 'teal.800',
           gradientTo: 'teal.100',
+          position: 'relative',
+          lg: {
+            margin: '2rem auto',
+            padding: 2,
+            width: 'breakpoint-lg',
+          },
         })}
       >
         <SupabaseProvider session={session}>
