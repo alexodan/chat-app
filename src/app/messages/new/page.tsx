@@ -11,7 +11,7 @@ function NewMessagePage() {
   const { user } = useContext(UserContext)
 
   const { sortedContacts } = useListContacts({
-    userId: user?.id!,
+    userId: user!.id,
   })
 
   return (

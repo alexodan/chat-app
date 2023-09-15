@@ -7,7 +7,7 @@ import { Message, NewMessage, Profile } from '@/types/models'
 import { useSupabase } from '@/components/SupabaseProvider'
 
 type MessageDisplay = {
-  id: number
+  id: string
   content: string
   timestamp: string
   isUserMessage: boolean
@@ -27,9 +27,33 @@ export const messageToDisplayMessage =
     avatarUrl: profiles.find(p => p.id === m.user_id)?.avatar_url!,
   })
 
-export function useConversation({ chatId }: { chatId: string }) {
+export function useConversation({
+  chatId,
+}: {
+  chatId: string
+  messageHistory: Message[]
+}) {
   const queryClient = useQueryClient()
   const { supabase } = useSupabase()
+
+  const { mutate: retryMutation } = useMutation({
+    mutationKey: ['messages-retry'],
+    mutationFn: async (failedMessage: NewMessage) => {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert([failedMessage])
+        .select()
+        .single()
+      if (error) {
+        throw error
+      }
+      return data
+    },
+    onSuccess: () => {
+      // Always refetch after error or success:
+      queryClient.invalidateQueries({ queryKey: ['messages'] })
+    },
+  })
 
   const { mutate, error } = useMutation({
     mutationKey: ['messages'],
@@ -55,19 +79,24 @@ export function useConversation({ chatId }: { chatId: string }) {
       if (previousMessages) {
         queryClient.setQueryData<Message[]>(['messages'], old => [
           ...(old || []),
-          { ...newMessage, id: 0 },
+          { ...newMessage, id: '0' },
         ])
       }
       // Return a context object with the snapshotted value
       return { previousMessages }
     },
-    onError: (_error, _failedMessage, context) => {
-      // Optimistic update 2/3: Rolling back messages
-      queryClient.setQueryData(['messages'], context?.previousMessages)
-    },
-    onSettled: () => {
-      // Always refetch after error or success:
-      queryClient.invalidateQueries({ queryKey: ['messages'] })
+    onError: (_error, failedMessage, context) => {
+      // Optimistic update 2/3: Mark failed message
+      queryClient.setQueryData<Message[]>(
+        ['messages'],
+        [
+          ...(context?.previousMessages || []),
+          {
+            ...failedMessage,
+            id: `failed-${context?.previousMessages.length}`,
+          },
+        ],
+      )
     },
   })
 
@@ -82,7 +111,7 @@ export function useConversation({ chatId }: { chatId: string }) {
           table: 'messages',
           filter: `chat_id=eq.${chatId}`,
         },
-        (/* payload */) => {
+        () => {
           queryClient.invalidateQueries({ queryKey: ['messages'] })
         },
       )
@@ -94,6 +123,7 @@ export function useConversation({ chatId }: { chatId: string }) {
 
   return {
     sendMessage: mutate,
+    retrySendMessage: retryMutation,
     errorSending: error,
   }
 }
@@ -106,12 +136,14 @@ export function useGetMessagesByChatId(chatId: string) {
       .from('messages')
       .select()
       .eq('chat_id', chatId)
-      .order('id')
-    return data || []
+      .order('timestamp', {
+        ascending: true,
+      })
+    return data
   })
 
   return {
-    messages: data ?? [],
+    messages: data,
     isLoading,
   }
 }

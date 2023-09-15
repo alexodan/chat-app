@@ -25,8 +25,9 @@ export default function Conversation({
 
   const [message, setMessage] = useState('')
 
-  const { sendMessage } = useConversation({
+  const { sendMessage, retrySendMessage } = useConversation({
     chatId,
+    messageHistory: messages,
   })
 
   const handleSubmit = async (e: FormEvent) => {
@@ -43,9 +44,9 @@ export default function Conversation({
     setMessage('')
   }
 
-  // const handleRetry = (message: NewMessage) => {
-  //   sendMessage(message)
-  // }
+  const handleRetry = (message: NewMessage) => {
+    retrySendMessage(message)
+  }
 
   const uiMessages = messages.map(messageToDisplayMessage(session?.user, users))
 
@@ -67,8 +68,8 @@ export default function Conversation({
               timestamp={message.timestamp}
               content={message.content}
               avatarUrl={message.avatarUrl}
-              // errorSending={!!message.error}
-              // retrySend={handleRetry}
+              errorSending={message.id.includes('failed')}
+              retrySend={handleRetry}
             />
           </li>
         ))}
