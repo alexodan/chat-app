@@ -1,7 +1,7 @@
 'use client'
 
 import { redirect } from 'next/navigation'
-import { useSupabase } from '../../../components/SupabaseProvider'
+import { useSupabase } from '../SupabaseProvider'
 import { Session } from '@supabase/supabase-js'
 
 export type WithSessionProps = {

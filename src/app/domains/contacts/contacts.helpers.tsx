@@ -48,7 +48,7 @@ export function useListContacts({ userId }: { userId: string }) {
       .map(profile => ({
         ...profile,
         lastMessageTimestamp:
-          messagesGroupedByUser.get(profile.id)?.[0]?.timestamp || '',
+          messagesGroupedByUser.get(profile.id)?.[0]?.timestamp || '', // TODO: this looks fragile
       }))
       .sort((c1, c2) =>
         c1.lastMessageTimestamp < c2.lastMessageTimestamp ? 1 : -1,

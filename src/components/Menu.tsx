@@ -20,7 +20,7 @@ export default function Menu() {
   const { session, supabase } = useSupabase()
 
   return (
-    <div className={css({ padding: 4 })}>
+    <div className={css({ padding: 2 })}>
       <Button onClick={onOpen}>
         <Image src="/burger-menu.svg" width={20} height={20} alt="menu" />
       </Button>

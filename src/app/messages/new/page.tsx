@@ -5,13 +5,18 @@ import ContactPreview from '@/components/ContactPreview'
 import { useListContacts } from '@/app/domains/contacts/contacts.helpers'
 import { UserContext } from '@/components/UserProvider'
 import { useContext } from 'react'
-import { withSession } from '@/components/hoc/withSession'
+import { redirect } from 'next/navigation'
 
 function NewMessagePage() {
   const { user } = useContext(UserContext)
 
+  if (!user) {
+    redirect('/login')
+  }
+
+  // TODO: does it make sense to have hooks in SSR (tho this has 'use client')
   const { sortedContacts } = useListContacts({
-    userId: user?.id!,
+    userId: user?.id,
   })
 
   return (
@@ -33,4 +38,4 @@ function NewMessagePage() {
   )
 }
 
-export default withSession(NewMessagePage)
+export default NewMessagePage

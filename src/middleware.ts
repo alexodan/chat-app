@@ -20,5 +20,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/account', '/messages', '/messages/new'],
+  matcher: ['/account', '/messages'],
 }
