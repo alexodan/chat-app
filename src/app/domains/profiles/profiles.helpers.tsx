@@ -12,7 +12,7 @@ export function useGetProfiles() {
   })
 
   return {
-    profiles,
+    profiles: profiles ?? [],
     isLoading,
   }
 }

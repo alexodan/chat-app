@@ -13,9 +13,9 @@ type Props = {
   timestamp: string
   content: string
   avatarUrl: string
-  // errorSending: boolean
+  errorSending: boolean
   // eslint-disable-next-line
-  // retrySend: (message: NewMessage) => void
+  retrySend: (message: NewMessage) => void
 }
 
 export default function Message(props: Props) {
@@ -25,8 +25,8 @@ export default function Message(props: Props) {
     timestamp,
     content,
     avatarUrl,
-    // errorSending,
-    // retrySend,
+    errorSending,
+    retrySend,
   } = props
 
   const path = usePathname()
@@ -61,7 +61,7 @@ export default function Message(props: Props) {
       >
         {username} {isOwnMessage ? '(you)' : ''}: {content}
       </div>
-      {/* {isOwnMessage && errorSending ? (
+      {isOwnMessage && errorSending ? (
         <button
           className={css({ color: 'red.600', fontWeight: '600' })}
           onClick={() =>
@@ -75,7 +75,7 @@ export default function Message(props: Props) {
         >
           ❗️ Retry
         </button>
-      ) : null} */}
+      ) : null}
     </div>
   )
 }
