@@ -30,15 +30,10 @@ export default function ContactPreview({ contact }: Props) {
     }
   }
 
-  if (!user) {
-    // TODO: withSession?
-    return null
-  }
-
   const chat = chats?.find(
     c =>
       c.users.length === 2 &&
-      c.users.includes(user?.id) &&
+      c.users.includes(user!.id) &&
       c.users.includes(contact.id),
   )
 
