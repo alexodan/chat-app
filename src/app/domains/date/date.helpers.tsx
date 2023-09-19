@@ -1,4 +1,4 @@
-export function parseTime(inputTime: string) {
+export function friendlyTime(inputTime: string) {
   const currentTime = new Date()
   const inputDate = new Date(inputTime)
 

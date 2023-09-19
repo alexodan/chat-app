@@ -6,20 +6,6 @@ import { User } from '@supabase/supabase-js'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 
-export function convertToMap<T, TKey extends keyof T>(
-  array: T[],
-  keyT: TKey,
-): Map<T[TKey], T> {
-  const map = new Map<T[TKey], T>()
-  for (const value of array) {
-    const id = value[keyT]
-    if (!map.get(id)) {
-      map.set(id, value)
-    }
-  }
-  return map
-}
-
 function groupMessagesByUser(messages: Message[]) {
   const map = new Map<string, Message[]>()
   for (const message of messages) {
@@ -34,29 +20,33 @@ function groupMessagesByUser(messages: Message[]) {
 export function useListContacts({ userId }: { userId: string }) {
   const { supabase } = useSupabase()
 
-  const { data: sortedContacts } = useQuery(['contactsPreview'], async () => {
-    if (!userId) return null
+  const { data: sortedContacts, ...rest } = useQuery(
+    ['contactsPreview'],
+    async () => {
+      if (!userId) return null
 
-    const { data: profiles } = await supabase.from('profiles').select('*')
-    const { data: messages } = await supabase.from('messages').select('*')
+      const { data: profiles } = await supabase.from('profiles').select('*')
+      const { data: messages } = await supabase.from('messages').select('*')
 
-    const messagesGroupedByUser = groupMessagesByUser(messages || [])
+      const messagesGroupedByUser = groupMessagesByUser(messages || [])
 
-    // Sorting by most recent conversation
-    return profiles
-      ?.filter(profile => profile.id !== userId)
-      .map(profile => ({
-        ...profile,
-        lastMessageTimestamp:
-          messagesGroupedByUser.get(profile.id)?.[0]?.timestamp || '',
-      }))
-      .sort((c1, c2) =>
-        c1.lastMessageTimestamp < c2.lastMessageTimestamp ? 1 : -1,
-      )
-  })
+      // Sorting by most recent conversation
+      return profiles
+        ?.filter(profile => profile.id !== userId)
+        .map(profile => ({
+          ...profile,
+          lastMessageTimestamp:
+            messagesGroupedByUser.get(profile.id)?.[0]?.timestamp || '',
+        }))
+        .sort((c1, c2) =>
+          c1.lastMessageTimestamp < c2.lastMessageTimestamp ? 1 : -1,
+        )
+    },
+  )
 
   return {
     sortedContacts: sortedContacts || [],
+    ...rest,
   }
 }
 
@@ -70,7 +60,7 @@ export function useContactPreview({
   const router = useRouter()
   const { supabase } = useSupabase()
 
-  const { data: sharedChats } = useQuery(
+  const { data: sharedChats, ...rest } = useQuery(
     [`contact-preview-${contact.id}`],
     async () => {
       if (!user) return null
@@ -113,5 +103,6 @@ export function useContactPreview({
   return {
     sharedChats,
     createChatWithContact: createChatWithContactMutation.mutateAsync,
+    ...rest,
   }
 }

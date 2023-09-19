@@ -4,7 +4,7 @@ import { css } from '../../styled-system/css'
 import Link from 'next/link'
 import useAvatar from '@/components/useAvatar'
 import { Profile } from '@/types/models'
-import { parseTime } from '@/app/domains/date/date.helpers'
+import { friendlyTime } from '@/app/domains/date/date.helpers'
 
 type Props = {
   chatId: string
@@ -43,7 +43,7 @@ export default function MessagePreview({
         <p>{content}</p>
       </div>
       <div className={css({ position: 'absolute', right: 4 })}>
-        {parseTime(timestamp)}
+        {friendlyTime(timestamp)}
       </div>
     </Link>
   )

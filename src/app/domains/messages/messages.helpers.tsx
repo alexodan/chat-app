@@ -131,7 +131,7 @@ export function useConversation({
 export function useGetMessagesByChatId(chatId: string) {
   const { supabase } = useSupabase()
 
-  const { data, isLoading } = useQuery(['messages'], async () => {
+  const { data, isLoading, ...rest } = useQuery(['messages'], async () => {
     const { data } = await supabase
       .from('messages')
       .select()
@@ -145,5 +145,6 @@ export function useGetMessagesByChatId(chatId: string) {
   return {
     messages: data,
     isLoading,
+    ...rest,
   }
 }
