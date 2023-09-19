@@ -23,8 +23,6 @@ export default function MessagePreviewList({
         display: 'flex',
         flexDir: 'column',
         flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
       })}
     >
       {chats.length ? (
@@ -52,18 +50,28 @@ export default function MessagePreviewList({
           )
         })
       ) : (
-        <Link
+        <div
           className={css({
-            bg: 'teal.950',
-            color: 'white',
-            textDecoration: 'none',
-            padding: 2,
-            borderRadius: 12,
+            display: 'flex',
+            flexDir: 'column',
+            flexGrow: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
           })}
-          href="/messages/new"
         >
-          Start a conversation!
-        </Link>
+          <Link
+            className={css({
+              bg: 'teal.950',
+              color: 'white',
+              textDecoration: 'none',
+              padding: 2,
+              borderRadius: 12,
+            })}
+            href="/messages/new"
+          >
+            Start a conversation!
+          </Link>
+        </div>
       )}
     </ul>
   )
