@@ -2,6 +2,7 @@
 
 import { useSupabase } from '@/components/SupabaseProvider'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useInterval } from 'usehooks-ts'
 
 export function useGetProfiles() {
   const { supabase } = useSupabase()
@@ -22,7 +23,7 @@ export function useGetProfiles() {
   }
 }
 
-export function useUpdateUserConnection() {
+export function useUpdateUserConnection(timeInMilis: number) {
   const { supabase } = useSupabase()
 
   const mutation = useMutation(['updateUserConnection'], async () => {
@@ -36,8 +37,7 @@ export function useUpdateUserConnection() {
     return data
   })
 
-  return {
-    updateActiveTime: mutation.mutate,
-    ...mutation,
-  }
+  useInterval(() => {
+    mutation.mutate()
+  }, timeInMilis)
 }

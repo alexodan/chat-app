@@ -14,18 +14,13 @@ import { css } from '../../styled-system/css'
 import { useSupabase } from '@/components/SupabaseProvider'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useInterval } from 'usehooks-ts'
 import { useUpdateUserConnection } from '@/app/domains/profiles/profiles.helpers'
 
 export default function Menu() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { session, supabase } = useSupabase()
 
-  const { updateActiveTime } = useUpdateUserConnection()
-
-  useInterval(() => {
-    updateActiveTime()
-  }, 1000 * 30)
+  useUpdateUserConnection(1000 * 30)
 
   return (
     <div className={css({ padding: 4 })}>

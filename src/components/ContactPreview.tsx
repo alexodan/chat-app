@@ -16,8 +16,9 @@ export function useStatus() {
   return {
     isUserOnline: (contact: Profile) =>
       contact?.timestamp_last_connection
-        ? Date.parse(new Date().toISOString()) -
-            Date.parse(contact.timestamp_last_connection) / 1000 >
+        ? (Date.parse(new Date().toISOString()) -
+            Date.parse(contact.timestamp_last_connection)) /
+            1000 <
           60
         : false,
     UserStatus: ({ isOnline }: { isOnline: boolean }) => (
@@ -25,6 +26,7 @@ export function useStatus() {
         className={css({
           width: 4,
           height: 4,
+          border: '2px solid white',
           borderRadius: '50%',
           bg: isOnline ? 'green.400' : 'red.400',
           position: 'absolute',
