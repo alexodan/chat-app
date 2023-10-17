@@ -20,7 +20,7 @@ export default function Menu() {
   const { session, supabase } = useSupabase()
 
   return (
-    <div className={css({ padding: 2 })}>
+    <div className={css({ padding: 4 })}>
       <Button onClick={onOpen}>
         <Image src="/burger-menu.svg" width={20} height={20} alt="menu" />
       </Button>
@@ -33,23 +33,30 @@ export default function Menu() {
           </DrawerHeader>
           <DrawerBody>
             <ul>
-              <li>
-                <Link onClick={onClose} href="/account">
-                  Account
-                </Link>
-              </li>
               {session && (
-                <li>
-                  <Link
-                    onClick={async () => {
-                      await supabase.auth.signOut()
-                      onClose()
-                    }}
-                    href="#"
-                  >
-                    Sign Out
-                  </Link>
-                </li>
+                <>
+                  <li>
+                    <Link onClick={onClose} href="/messages">
+                      Messages
+                    </Link>
+                  </li>
+                  <li>
+                    <Link onClick={onClose} href="/account">
+                      Account
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      onClick={async () => {
+                        await supabase.auth.signOut()
+                        onClose()
+                      }}
+                      href="#"
+                    >
+                      Sign Out
+                    </Link>
+                  </li>
+                </>
               )}
             </ul>
           </DrawerBody>

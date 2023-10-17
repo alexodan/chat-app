@@ -1,5 +1,4 @@
 import './global.css'
-import { Inter } from 'next/font/google'
 import Menu from '@/components/Menu'
 import {
   createServerComponentClient,
@@ -12,8 +11,6 @@ import SupabaseListener from '@/components/SupabaseListener'
 import QueryWrapper from '@/components/QueryWrapper'
 import { UserContextProvider } from '@/components/UserProvider'
 import { css } from '../../styled-system/css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Chat App',
@@ -38,7 +35,12 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={css({ minH: '100%', display: 'flex', flexDir: 'column' })}
+      className={css({
+        minH: '100%',
+        display: 'flex',
+        flexDir: 'column',
+        md: { backgroundColor: 'teal.950' },
+      })}
     >
       <body
         suppressHydrationWarning={true}
@@ -49,6 +51,12 @@ export default async function RootLayout({
           bgGradient: 'to-b',
           gradientFrom: 'teal.800',
           gradientTo: 'teal.100',
+          position: 'relative',
+          lg: {
+            margin: '2rem auto',
+            padding: 2,
+            width: 'breakpoint-lg',
+          },
         })}
       >
         <SupabaseProvider session={session}>

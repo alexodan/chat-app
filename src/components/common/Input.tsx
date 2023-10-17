@@ -37,6 +37,9 @@ type Props = {
   size?: 'sm' | 'lg'
   visual?: 'outline' | 'solid'
   fullWidth?: boolean
+  // Tip: It's good practice to have label/aria-label as required props
+  label: string
+  'aria-label': string
 } & InputHTMLAttributes<HTMLInputElement>
 
 export default function Input({

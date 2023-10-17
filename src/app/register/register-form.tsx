@@ -98,6 +98,9 @@ export default function RegisterForm() {
         <label>
           Username
           <Input
+            label="Email"
+            aria-label="Email"
+            required
             fullWidth
             className={css({ mb: 2 })}
             type="text"
@@ -109,6 +112,9 @@ export default function RegisterForm() {
         <label>
           Email
           <Input
+            label="Email"
+            aria-label="Email"
+            required
             fullWidth
             className={css({ mb: 2 })}
             type="email"
@@ -120,6 +126,9 @@ export default function RegisterForm() {
         <label>
           Password
           <Input
+            label="Password"
+            aria-label="Password"
+            required
             fullWidth
             className={css({ mb: 2 })}
             type="password"
@@ -131,6 +140,9 @@ export default function RegisterForm() {
         <label>
           Confirm Password
           <Input
+            label="Confirm password"
+            aria-label="Confirm password"
+            required
             fullWidth
             className={css({ mb: 2 })}
             type="password"
