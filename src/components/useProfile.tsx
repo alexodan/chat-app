@@ -3,16 +3,6 @@ import { useSupabase } from '@/components/SupabaseProvider'
 export default function useProfile() {
   const { supabase } = useSupabase()
 
-  const getUserProfile = async (id: string) => {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('full_name, username, avatar_url')
-      .eq('id', id)
-      .single()
-    if (error) throw error
-    return profile
-  }
-
   const updateUserProfile = async ({
     id,
     fullName,
@@ -46,7 +36,6 @@ export default function useProfile() {
   }
 
   return {
-    getUserProfile,
     updateUserProfile,
   }
 }

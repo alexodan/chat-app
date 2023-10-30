@@ -1,21 +1,24 @@
 'use client'
 
-import { Chat, Message, Profile } from '@/types/models'
-import { useSupabase } from './SupabaseProvider'
-import MessagePreview from './MessagePreview'
-import { css } from '../../styled-system/css'
 import Link from 'next/link'
+import { useSupabase } from './SupabaseProvider'
+import { css } from '../../styled-system/css'
+import { useGetProfiles } from '../app/domains/profiles/profiles.helpers'
+import { useGetUserLastMessages } from '@/app/domains/messages/messages.helpers'
+import MessagePreview from './MessagePreview'
 
-export default function MessagePreviewList({
-  chats,
-  lastMessages,
-  contacts,
-}: {
-  chats: Chat[]
-  lastMessages: { [key: string]: Message }
-  contacts: Profile[]
-}) {
+export default function MessagePreviewList() {
   const { session } = useSupabase()
+
+  const { messages: lastMessages, isLoading } = useGetUserLastMessages(
+    session?.user.id,
+  )
+
+  const { profiles, isLoading: loadingProfiles } = useGetProfiles()
+
+  if (isLoading || loadingProfiles) {
+    return <p>Loading...</p>
+  }
 
   return (
     <ul
@@ -25,26 +28,20 @@ export default function MessagePreviewList({
         flexGrow: 1,
       })}
     >
-      {chats.length ? (
-        chats.map(chat => {
-          const userId = chat.users
-            .filter(userId => userId !== session?.user.id)
-            .at(0)
-          // Note: For now I'm only handling one on one chats.
-          const contactInChat = contacts.find(contact => contact.id === userId)
-          const message = lastMessages[chat.chat_id]
-
-          if (!contactInChat || !message?.content || !message?.timestamp) {
-            return null
-          }
-
+      {lastMessages ? (
+        Array.from(lastMessages.values()).map(message => {
+          const recipientId = message.chat.users.find(
+            u => u !== session?.user.id,
+          )
           return (
-            <li key={chat.chat_id}>
+            <li key={message.chat.chat_id}>
               <MessagePreview
-                chatId={chat.chat_id}
-                contact={contactInChat}
-                content={message.content}
-                timestamp={message.timestamp}
+                chatId={message.chat.chat_id}
+                contact={
+                  profiles.find(profileUser => profileUser.id === recipientId)!
+                }
+                content={message.content!}
+                timestamp={message.timestamp!}
               />
             </li>
           )

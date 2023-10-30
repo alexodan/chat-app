@@ -90,6 +90,8 @@ export default function ContactPreview({ contact }: Props) {
             display: 'flex',
             alignItems: 'center',
             position: 'relative',
+            width: '100%',
+            cursor: 'pointer',
           })}
         >
           <UserStatus isOnline={isOnline} />

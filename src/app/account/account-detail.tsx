@@ -1,22 +1,16 @@
 'use client'
 
-import { css } from '../../../styled-system/css'
-import { useSupabase } from '@/components/SupabaseProvider'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import useProfile from '@/components/useProfile'
-import Loading from '@/components/common/Loading'
 import AccountForm from '@/app/account/account-form'
+import { Profile } from '@/types/models'
 
-export default function AccountDetail() {
-  const { session } = useSupabase()
-  const { getUserProfile, updateUserProfile } = useProfile()
+type AccountDetailsProps = {
+  user: Profile & { email: string }
+}
 
-  const user = session?.user
-  const { data, isLoading } = useQuery(['profile'], async () => {
-    if (user) {
-      return getUserProfile(user.id)
-    }
-  })
+export default function AccountDetail({ user }: AccountDetailsProps) {
+  const { updateUserProfile } = useProfile()
 
   const mutation = useMutation(
     async ({
@@ -48,26 +42,19 @@ export default function AccountDetail() {
     mutation.mutate({ fullName, username, imageFile })
   }
 
-  if (isLoading || !data || !session?.user.email) {
-    return <Loading height={200} width={200} />
-  }
-
   return (
-    <div className={css({ px: 4, py: 2 })}>
-      <h2 className={css({ fontSize: '2xl' })}>Account details</h2>
-      <AccountForm
-        email={session?.user.email}
-        userInfo={data}
-        isLoading={mutation.isLoading}
-        error={
-          mutation.isError
-            ? mutation.error instanceof Error
-              ? mutation.error.message
-              : 'An error occurred, try again later'
-            : ''
-        }
-        onSubmit={handleSubmit}
-      />
-    </div>
+    <AccountForm
+      email={user.email}
+      userInfo={user}
+      isUpdating={mutation.isLoading}
+      error={
+        mutation.isError
+          ? mutation.error instanceof Error
+            ? mutation.error.message
+            : 'An error occurred, try again later'
+          : ''
+      }
+      onSubmit={handleSubmit}
+    />
   )
 }

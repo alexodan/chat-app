@@ -14,7 +14,7 @@ type Props = {
     username: string | null
     avatar_url: string | null
   }
-  isLoading: boolean
+  isUpdating: boolean
   error: string | null
   // eslint-disable-next-line
   onSubmit: (formData: {
@@ -27,7 +27,7 @@ type Props = {
 export default function AccountForm({
   email,
   userInfo,
-  isLoading,
+  isUpdating,
   error,
   onSubmit,
 }: Props) {
@@ -95,7 +95,7 @@ export default function AccountForm({
       </div>
 
       <div className={css({ mt: 2 })}>
-        <Button isLoading={isLoading}>Update</Button>
+        <Button isLoading={isUpdating}>Update</Button>
       </div>
     </form>
   )
