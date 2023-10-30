@@ -12,11 +12,6 @@ import QueryWrapper from '@/components/QueryWrapper'
 import { UserContextProvider } from '@/components/UserProvider'
 import { css } from '../../styled-system/css'
 
-export const metadata = {
-  title: 'Chat App',
-  description: '',
-}
-
 export type TypedSupabaseClient = SupabaseClient<Database>
 
 export default async function RootLayout({

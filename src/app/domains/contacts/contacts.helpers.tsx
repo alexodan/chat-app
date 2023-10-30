@@ -42,6 +42,9 @@ export function useListContacts({ userId }: { userId: string }) {
           c1.lastMessageTimestamp < c2.lastMessageTimestamp ? 1 : -1,
         )
     },
+    {
+      refetchInterval: 1000 * 60,
+    },
   )
 
   return {
